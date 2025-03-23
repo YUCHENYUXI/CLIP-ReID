@@ -52,9 +52,10 @@ TEST:
   FEAT_NORM: 'yes'
 
 DATASETS:
-#   NAMES: ('market1501')
-#   ROOT_DIR: ('')
-# OUTPUT_DIR: ''
+  NAMES: ('market1501')
+  ROOT_DIR: ('P:\data')
+
+OUTPUT_DIR: 'res/vit_base/'
 
 #   NAMES: ('dukemtmc')
 #   ROOT_DIR: ('')
