@@ -22,7 +22,7 @@ def set_seed(seed):
     torch.backends.cudnn.benchmark = True
 
 if __name__ == '__main__':
-
+#%%
     parser = argparse.ArgumentParser(description="ReID Baseline Training")
     parser.add_argument(
         "--config_file", default="configs/person/vit_base.yml", help="path to config file", type=str
@@ -32,7 +32,6 @@ if __name__ == '__main__':
                         nargs=argparse.REMAINDER)
     parser.add_argument("--local_rank", default=0, type=int)
     args = parser.parse_args()
-
     if args.config_file != "":
         cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
@@ -61,9 +60,10 @@ if __name__ == '__main__':
     if cfg.MODEL.DIST_TRAIN:
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
 
+    #%% update configs
     os.environ['CUDA_VISIBLE_DEVICES'] = cfg.MODEL.DEVICE_ID
     train_loader, train_loader_normal, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
-
+    #%%
     model = make_model(cfg, num_class=num_classes, camera_num=camera_num, view_num = view_num)
 
     loss_func, center_criterion = make_loss(cfg, num_classes=num_classes)
