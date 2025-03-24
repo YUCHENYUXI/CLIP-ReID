@@ -58,7 +58,7 @@ def make_dataloader(cfg):
     ])
 
     num_workers = cfg.DATALOADER.NUM_WORKERS
-
+# 重点！获取数据集 # 1. 通过cfg.DATASETS.NAMES获取数据集的名称，然后通过__factory获取数据集的类
     dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
     
     train_set = ImageDataset(dataset.train, train_transforms)
@@ -66,7 +66,7 @@ def make_dataloader(cfg):
     num_classes = dataset.num_train_pids
     cam_num = dataset.num_train_cams
     view_num = dataset.num_train_vids
-
+# 接下来是构建DataLoader，这里有两个DataLoader，一个是训练集的DataLoader，一个是验证集的DataLoader
     if 'triplet' in cfg.DATALOADER.SAMPLER:
         if cfg.MODEL.DIST_TRAIN:
             print('DIST_TRAIN START')

@@ -61,7 +61,7 @@ if __name__ == '__main__':
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
 
     #%% update configs
-    os.environ['CUDA_VISIBLE_DEVICES'] = cfg.MODEL.DEVICE_ID
+    os.environ['CUDA_VISIBLE_DEVICES'] = cfg.MODEL.DEVICE_ID # 明确最后获取的dataset是什么；即train_loader, train_loader_normal, val_loader, num_query, num_classes, camera_num, view_num的含义
     train_loader, train_loader_normal, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
     #%%
     model = make_model(cfg, num_class=num_classes, camera_num=camera_num, view_num = view_num)
