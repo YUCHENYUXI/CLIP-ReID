@@ -1,0 +1,29 @@
+screen
+
+---
+
+conda activate clipreid
+
+---
+
+CUDA_VISIBLE_DEVICES=0 python train.py --config_file configs/person/cnn_base.yml
+
+CUDA_VISIBLE_DEVICES=0 python train_clipreid.py --config_file configs/person/cnn_clipreid.yml
+
+CUDA_VISIBLE_DEVICES=0 python train.py --config_file configs/person/vit_base.yml
+
+CUDA_VISIBLE_DEVICES=0 python train_clipreid.py --config_file configs/person/vit_clipreid.yml
+
+CUDA_VISIBLE_DEVICES=0 python train_clipreid.py --config_file configs/person/vit_clipreidSieOlp.yml  MODEL.SIE_CAMERA True MODEL.SIE_COE 1.0 MODEL.STRIDE_SIZE '[12, 12]'
+
+---
+
+CUDA_VISIBLE_DEVICES=0 python test.py --config_file configs/person/cnn_base.yml 
+
+CUDA_VISIBLE_DEVICES=0 python test_clipreid.py --config_file configs/person/cnn_clipreid.yml 
+
+CUDA_VISIBLE_DEVICES=0 python test.py --config_file configs/person/vit_base.yml 
+
+CUDA_VISIBLE_DEVICES=0 python test_clipreid.py --config_file configs/person/vit_clipreid.yml 
+
+CUDA_VISIBLE_DEVICES=0 python test_clipreid.py --config_file configs/person/vit_clipreidSieOlp.yml 
