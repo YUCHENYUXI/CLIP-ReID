@@ -1,5 +1,5 @@
 MODEL:
-  PRETRAIN_CHOICE: 'imagenet'
+  PRETRAIN_CHOICE: 'imagenet'# 40B
   METRIC_LOSS_TYPE: 'triplet'
   IF_LABELSMOOTH: 'on'
   IF_WITH_CENTER: 'no'
@@ -50,7 +50,7 @@ TEST:
 
 DATASETS:
   NAMES: ('market1501')
-  ROOT_DIR: ('A:\data')
+  ROOT_DIR: ('P:\data')
 
 OUTPUT_DIR: 'res/cnn_base/'
 

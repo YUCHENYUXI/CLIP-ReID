@@ -53,7 +53,7 @@ TEST:
 
 DATASETS:
   NAMES: ('market1501')
-  ROOT_DIR: ('A:\data')
+  ROOT_DIR: ('P:\data')
 
 OUTPUT_DIR: 'res/vit_base/'
 
