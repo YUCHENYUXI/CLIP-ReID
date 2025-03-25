@@ -69,7 +69,7 @@ TEST:
 
 DATASETS:
   NAMES: ('market1501')
-  ROOT_DIR: ('P:\data')
+  ROOT_DIR: ('A:\data')
 
 OUTPUT_DIR: 'res/cnn_base/'
 
