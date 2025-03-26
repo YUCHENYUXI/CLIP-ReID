@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 from .clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
 _tokenizer = _Tokenizer()
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+from timm.layers import DropPath, to_2tuple, trunc_normal_
 
 def weights_init_kaiming(m):
     classname = m.__class__.__name__
