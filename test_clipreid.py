@@ -38,14 +38,14 @@ if __name__ == "__main__":
 
     os.environ['CUDA_VISIBLE_DEVICES'] = cfg.MODEL.DEVICE_ID
 
-    train_loader, train_loader_normal, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
+    train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
 
     model = make_model(cfg, num_class=num_classes, camera_num=camera_num, view_num = view_num)
     model.load_param(cfg.TEST.WEIGHT)
 
     if cfg.DATASETS.NAMES == 'VehicleID':
         for trial in range(10):
-            train_loader, train_loader_normal, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
+            train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
             rank_1, rank5, mAP = do_inference(cfg,
                  model,
                  val_loader,
