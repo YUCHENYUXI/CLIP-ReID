@@ -57,6 +57,7 @@ _C.MODEL.ATT_DROP_RATE = 0.0
 _C.MODEL.TRANSFORMER_TYPE = 'None'
 _C.MODEL.STRIDE_SIZE = [16, 16]
 
+
 # SIE Parameter
 _C.MODEL.SIE_COE = 3.0
 _C.MODEL.SIE_CAMERA = False
@@ -85,6 +86,10 @@ _C.INPUT.PADDING = 10
 # Dataset
 # -----------------------------------------------------------------------------
 _C.DATASETS = CN()
+# 是否使用视频数据集
+_C.DATASETS.ISVID = False
+# 可用数据集列表
+_C.DATASETS.LIST = ['MARS']
 # List of the dataset names for training, as present in paths_catalog.py
 _C.DATASETS.NAMES = ('market1501')
 # Root directory where datasets should be used (and downloaded if not found)
@@ -101,6 +106,11 @@ _C.DATALOADER.NUM_WORKERS = 8
 _C.DATALOADER.SAMPLER = 'softmax'
 # Number of instance for one batch
 _C.DATALOADER.NUM_INSTANCE = 16
+# pin mem
+_C.DATALOADER.PIN = True
+# seqlen
+_C.DATALOADER.SEQLEN = 4
+_C.DATALOADER.SAMSTREDE = 4
 
 # ---------------------------------------------------------------------------- #
 # Solver

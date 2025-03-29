@@ -11,7 +11,7 @@ import numpy as np
 import os
 import argparse
 from config import cfg_base as cfg
-
+print("Current working directory:", os.getcwd())
 def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -35,11 +35,11 @@ if __name__ == '__main__':
     if args.config_file != "":
         cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
-    cfg.freeze()
+    cfg.freeze() # 冻结参数
 
-    set_seed(cfg.SOLVER.SEED)
+    set_seed(cfg.SOLVER.SEED) # 全局种子
 
-    if cfg.MODEL.DIST_TRAIN:
+    if cfg.MODEL.DIST_TRAIN: # 分布训练
         torch.cuda.set_device(args.local_rank)
 
     output_dir = cfg.OUTPUT_DIR

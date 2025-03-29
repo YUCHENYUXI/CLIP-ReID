@@ -20,6 +20,7 @@ DATALOADER:
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
   NUM_WORKERS: 8
+  PIN: True
 
 SOLVER:
   IMS_PER_BATCH: 64
