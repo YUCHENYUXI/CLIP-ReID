@@ -47,6 +47,7 @@ def make_dataloader(cfg):
     isVID=cfg.DATASETS.ISVID
     #%% 定义变换器
     if not isVID:
+        # 图像变换器
         train_transforms = T.Compose([
                 T.Resize(cfg.INPUT.SIZE_TRAIN, interpolation=3),
                 T.RandomHorizontalFlip(p=cfg.INPUT.PROB),
