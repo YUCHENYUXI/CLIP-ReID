@@ -48,9 +48,12 @@ TEST:
   NECK_FEAT: 'before'
   FEAT_NORM: 'yes'
 
+
 DATASETS:
-  NAMES: ('market1501')
-  ROOT_DIR: ('A:\data')
+  ISVID: True
+  LIST: ['MARS']
+  NAMES: ('MARS')
+  ROOT_DIR: ('../../data')
 
 OUTPUT_DIR: 'res/cnn_base'
 

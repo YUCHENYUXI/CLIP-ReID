@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python train_clipreid.py --config_file configs/person/cnn_clipreid.yml

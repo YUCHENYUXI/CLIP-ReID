@@ -7,6 +7,7 @@ conda activate clipreid
 ---
 
 CUDA_VISIBLE_DEVICES=0 python train.py --config_file configs/person/cnn_base.yml
+CUDA_VISIBLE_DEVICES=0 python train.py --config_file configs/person/cnn_base_vid_mars.yml
 
 CUDA_VISIBLE_DEVICES=0 python train_clipreid.py --config_file configs/person/cnn_clipreid.yml
 
