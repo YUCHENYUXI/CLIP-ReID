@@ -9,3 +9,5 @@
 /model/clip/__pycache__
 .vscode
 res
+*.pyc
+.gitignore

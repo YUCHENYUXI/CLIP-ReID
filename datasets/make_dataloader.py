@@ -1,5 +1,7 @@
 import torch
 import torchvision.transforms as T
+import transforms.spatial_transforms as ST
+import transforms.temporal_transforms as TT
 from torch.utils.data import DataLoader
 
 from .bases import ImageDataset
@@ -40,22 +42,47 @@ def val_collate_fn(batch):
     return torch.stack(imgs, dim=0), pids, camids, camids_batch, viewids, img_paths
 
 def make_dataloader(cfg):
-    train_transforms = T.Compose([
-            T.Resize(cfg.INPUT.SIZE_TRAIN, interpolation=3),
-            T.RandomHorizontalFlip(p=cfg.INPUT.PROB),
-            T.Pad(cfg.INPUT.PADDING),
-            T.RandomCrop(cfg.INPUT.SIZE_TRAIN),
-            T.ToTensor(),
-            T.Normalize(mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD),
-            RandomErasing(probability=cfg.INPUT.RE_PROB, mode='pixel', max_count=1, device='cpu'),
-            # RandomErasing(probability=cfg.INPUT.RE_PROB, mean=cfg.INPUT.PIXEL_MEAN)
-        ])
+    if not cfg.DATASETS.ISVID:
+        train_transforms = T.Compose([
+                T.Resize(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+                T.RandomHorizontalFlip(p=cfg.INPUT.PROB),
+                T.Pad(cfg.INPUT.PADDING),
+                T.RandomCrop(cfg.INPUT.SIZE_TRAIN),
+                T.ToTensor(),
+                T.Normalize(mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD),
+                RandomErasing(probability=cfg.INPUT.RE_PROB, mode='pixel', max_count=1, device='cpu'),
+                # RandomErasing(probability=cfg.INPUT.RE_PROB, mean=cfg.INPUT.PIXEL_MEAN)
+            ])
 
-    val_transforms = T.Compose([
-        T.Resize(cfg.INPUT.SIZE_TEST),
-        T.ToTensor(),
-        T.Normalize(mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD)
-    ])
+        val_transforms = T.Compose([
+            T.Resize(cfg.INPUT.SIZE_TEST),
+            T.ToTensor(),
+            T.Normalize(mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD)
+        ])
+    else:
+    #%% 从ap3d参考
+        # Data augmentation
+        spatial_transform_train = ST.Compose([
+                    ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+                    ST.RandomHorizontalFlip(),
+                    ST.ToTensor(),
+                    ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ])
+        temporal_transform_train = TT.TemporalRandomCrop(size=args.seq_len, stride=args.sample_stride)
+
+        spatial_transform_test = ST.Compose([
+                    ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+                    ST.ToTensor(),
+                    ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ])
+        temporal_transform_test = TT.TemporalBeginCrop()
+    # 是否固定显存
+    pin_memory = True if cfg.DATALOADER.PIN else False
+
+
+
+    #%%
+
 
     num_workers = cfg.DATALOADER.NUM_WORKERS
 # 重点！获取数据集 # 1. 通过cfg.DATASETS.NAMES获取数据集的名称，然后通过__factory获取数据集的类
