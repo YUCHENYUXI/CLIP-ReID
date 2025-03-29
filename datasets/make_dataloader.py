@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as T
-import transforms.spatial_transforms as ST
-import transforms.temporal_transforms as TT
+import datasets.transforms.spatial_transforms as ST
+import datasets.transforms.temporal_transforms as TT
 from torch.utils.data import DataLoader
 
 from .bases import ImageDataset
@@ -16,13 +16,15 @@ from .occ_duke import OCC_DukeMTMCreID
 from .vehicleid import VehicleID
 from .veri import VeRi
 
+from datasets.viddatasets.data_manager import Mars
 __factory = {
     'market1501': Market1501,
     'dukemtmc': DukeMTMCreID,
     'msmt17': MSMT17,
     'occ_duke': OCC_DukeMTMCreID,
     'veri': VeRi,
-    'VehicleID': VehicleID
+    'VehicleID': VehicleID,
+    'MARS': Mars
 }
 
 def train_collate_fn(batch):
@@ -42,7 +44,9 @@ def val_collate_fn(batch):
     return torch.stack(imgs, dim=0), pids, camids, camids_batch, viewids, img_paths
 
 def make_dataloader(cfg):
-    if not cfg.DATASETS.ISVID:
+    isVID=cfg.DATASETS.ISVID
+    #%% 定义变换器
+    if not isVID:
         train_transforms = T.Compose([
                 T.Resize(cfg.INPUT.SIZE_TRAIN, interpolation=3),
                 T.RandomHorizontalFlip(p=cfg.INPUT.PROB),
@@ -60,7 +64,7 @@ def make_dataloader(cfg):
             T.Normalize(mean=cfg.INPUT.PIXEL_MEAN, std=cfg.INPUT.PIXEL_STD)
         ])
     else:
-    #%% 从ap3d参考
+    #%% 视频变换器
         # Data augmentation
         spatial_transform_train = ST.Compose([
                     ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
@@ -68,7 +72,7 @@ def make_dataloader(cfg):
                     ST.ToTensor(),
                     ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                 ])
-        temporal_transform_train = TT.TemporalRandomCrop(size=args.seq_len, stride=args.sample_stride)
+        temporal_transform_train = TT.TemporalRandomCrop(size=cfg.DATALOADER.SEQLEN, stride=cfg.DATALOADER.SAMSTREDE)
 
         spatial_transform_test = ST.Compose([
                     ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
@@ -76,66 +80,64 @@ def make_dataloader(cfg):
                     ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                 ])
         temporal_transform_test = TT.TemporalBeginCrop()
-    # 是否固定显存
+    #%% 是否固定显存
     pin_memory = True if cfg.DATALOADER.PIN else False
 
-
-
-    #%%
-
-
+    #%% DATALOADER
     num_workers = cfg.DATALOADER.NUM_WORKERS
-# 重点！获取数据集 # 1. 通过cfg.DATASETS.NAMES获取数据集的名称，然后通过__factory获取数据集的类
-    dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
-    
-    train_set = ImageDataset(dataset.train, train_transforms)
-    train_set_normal = ImageDataset(dataset.train, val_transforms)
-    num_classes = dataset.num_train_pids
-    cam_num = dataset.num_train_cams
-    view_num = dataset.num_train_vids
-# 接下来是构建DataLoader，这里有两个DataLoader，一个是训练集的DataLoader，一个是验证集的DataLoader
-    if 'triplet' in cfg.DATALOADER.SAMPLER:
-        if cfg.MODEL.DIST_TRAIN:
-            print('DIST_TRAIN START')
-            mini_batch_size = cfg.SOLVER.IMS_PER_BATCH // dist.get_world_size()
-            data_sampler = RandomIdentitySampler_DDP(dataset.train, cfg.SOLVER.IMS_PER_BATCH, cfg.DATALOADER.NUM_INSTANCE)
-            batch_sampler = torch.utils.data.sampler.BatchSampler(data_sampler, mini_batch_size, True)
-            train_loader = torch.utils.data.DataLoader(
-                train_set,
-                num_workers=num_workers,
-                batch_sampler=batch_sampler,
-                collate_fn=train_collate_fn,
-                pin_memory=True,
-            )
-        else:
+
+    if not isVID:
+        # 重点！获取数据集 # 1. 通过cfg.DATASETS.NAMES获取数据集的名称，然后通过__factory获取数据集的类
+        dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
+        
+        train_set = ImageDataset(dataset.train, train_transforms)
+        train_set_normal = ImageDataset(dataset.train, val_transforms)
+        num_classes = dataset.num_train_pids
+        cam_num = dataset.num_train_cams
+        view_num = dataset.num_train_vids
+        # 接下来是构建DataLoader，这里有两个DataLoader，一个是训练集的DataLoader，一个是验证集的DataLoader
+        if 'triplet' in cfg.DATALOADER.SAMPLER:
+            if cfg.MODEL.DIST_TRAIN:
+                print('DIST_TRAIN START')
+                mini_batch_size = cfg.SOLVER.IMS_PER_BATCH // dist.get_world_size()
+                data_sampler = RandomIdentitySampler_DDP(dataset.train, cfg.SOLVER.IMS_PER_BATCH, cfg.DATALOADER.NUM_INSTANCE)
+                batch_sampler = torch.utils.data.sampler.BatchSampler(data_sampler, mini_batch_size, True)
+                train_loader = torch.utils.data.DataLoader(
+                    train_set,
+                    num_workers=num_workers,
+                    batch_sampler=batch_sampler,
+                    collate_fn=train_collate_fn,
+                    pin_memory=True,
+                )
+            else:
+                train_loader = DataLoader(
+                    train_set, 
+                    batch_size=cfg.SOLVER.IMS_PER_BATCH,
+                    sampler=RandomIdentitySampler(
+                        dataset.train,
+                        cfg.SOLVER.IMS_PER_BATCH, 
+                        cfg.DATALOADER.NUM_INSTANCE
+                    ),
+                    num_workers=num_workers, 
+                    collate_fn=train_collate_fn
+                )
+        elif cfg.DATALOADER.SAMPLER == 'softmax':
+            print('using softmax sampler')
             train_loader = DataLoader(
-                train_set, 
-                batch_size=cfg.SOLVER.IMS_PER_BATCH,
-                sampler=RandomIdentitySampler(
-                    dataset.train,
-                    cfg.SOLVER.IMS_PER_BATCH, 
-                    cfg.DATALOADER.NUM_INSTANCE
-                ),
-                num_workers=num_workers, 
+                train_set, batch_size=cfg.SOLVER.IMS_PER_BATCH, shuffle=True, num_workers=num_workers,
                 collate_fn=train_collate_fn
             )
-    elif cfg.DATALOADER.SAMPLER == 'softmax':
-        print('using softmax sampler')
-        train_loader = DataLoader(
-            train_set, batch_size=cfg.SOLVER.IMS_PER_BATCH, shuffle=True, num_workers=num_workers,
-            collate_fn=train_collate_fn
+        else:
+            print('unsupported sampler! expected softmax or triplet but got {}'.format(cfg.SAMPLER))
+
+        val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
+
+        val_loader = DataLoader(
+            val_set, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
+            collate_fn=val_collate_fn
         )
-    else:
-        print('unsupported sampler! expected softmax or triplet but got {}'.format(cfg.SAMPLER))
-
-    val_set = ImageDataset(dataset.query + dataset.gallery, val_transforms)
-
-    val_loader = DataLoader(
-        val_set, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
-        collate_fn=val_collate_fn
-    )
-    train_loader_normal = DataLoader(
-        train_set_normal, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
-        collate_fn=val_collate_fn
-    )
+        train_loader_normal = DataLoader(
+            train_set_normal, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
+            collate_fn=val_collate_fn
+        )
     return train_loader, train_loader_normal, val_loader, len(dataset.query), num_classes, cam_num, view_num
