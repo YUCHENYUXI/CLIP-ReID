@@ -11,7 +11,7 @@ import numpy as np
 import os
 import argparse
 from config import cfg_base as cfg
-
+print("Current working directory:", os.getcwd())
 def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
