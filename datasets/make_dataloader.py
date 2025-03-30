@@ -54,12 +54,62 @@ def make_dataloader(cfg):
     cfg_num_workers=cfg.DATALOADER.NUM_WORKERS
     batch_size = cfg.SOLVER.IMS_PER_BATCH
     test_batch_size = cfg.TEST.IMS_PER_BATCH    
-    #%% 定义变换器
+    # 定义变换器
     pin_memory = True if cfg.DATALOADER.PIN else False
     num_workers = cfg.DATALOADER.NUM_WORKERS
 
-    if not isVID:
-        #%% 处理图像ReID数据集
+    def VID():
+        # 视频数据集
+        spatial_transform_train = ST.Compose([
+                    ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+                    ST.RandomHorizontalFlip(),
+                    ST.ToTensor(),
+                    ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ])
+        temporal_transform_train = TT.TemporalRandomCrop(size=cfg.DATALOADER.SEQLEN, stride=cfg.DATALOADER.SAMSTREDE)
+
+        spatial_transform_test = ST.Compose([
+                    ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+                    ST.ToTensor(),
+                    ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                ])
+        temporal_transform_test = TT.TemporalBeginCrop()
+        # 数据集
+        print("Initializing dataset {}".format(dataset_name))
+        dataset = data_manager.init_dataset(name=dataset_name, root=cfg.DATASETS.ROOT_DIR)
+
+        # dataloader
+        if cfg.DATASETS.NAMES != 'MARS':
+            trainloader = DataLoader(
+                VideoDataset(dataset.train_dense, spatial_transform=spatial_transform_train, temporal_transform=temporal_transform_train),
+                sampler=RandomIdentitySampler_vid(dataset.train_dense, num_instances=cfg_num_instances),
+                batch_size=batch_size, num_workers=cfg_num_workers,
+                pin_memory=pin_memory, drop_last=True)
+        else: #MARS loader
+            trainloader = DataLoader(
+            VideoDataset(dataset.train, spatial_transform=spatial_transform_train, temporal_transform=temporal_transform_train),
+            sampler=RandomIdentitySampler_vid(dataset.train, num_instances=cfg_num_instances),
+            batch_size=batch_size, num_workers=cfg_num_workers,
+            pin_memory=pin_memory, drop_last=True)
+
+        queryloader = DataLoader(
+            VideoDataset(dataset.query, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
+            batch_size=test_batch_size, shuffle=False, num_workers=0,
+            pin_memory=pin_memory, drop_last=False)
+
+        galleryloader = DataLoader(
+            VideoDataset(dataset.gallery, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
+            batch_size=test_batch_size, shuffle=False, num_workers=0,
+            pin_memory=pin_memory, drop_last=False)
+        # return train_loader, val_loader, len(dataset.query), num_classes, cam_num, view_num
+        view_num = None
+        num_classes = dataset.num_train_pids
+        cam_num = dataset.num_cameras
+        view_num = dataset.num_view
+        return trainloader, val_loader, len(dataset.query), num_classes, cam_num, view_num
+    
+    def IMG():
+        # 处理图像ReID数据集
         # 图像变换器
         train_transforms = T.Compose([
                 T.Resize(cfg.INPUT.SIZE_TRAIN, interpolation=3),
@@ -132,53 +182,10 @@ def make_dataloader(cfg):
             collate_fn=val_collate_fn
         )
         return train_loader, val_loader, len(dataset.query), num_classes, cam_num, view_num
+    # 核心部分
+    if isVID:
+        return VID()
     else:
-        #%% 视频数据集
-        spatial_transform_train = ST.Compose([
-                    ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
-                    ST.RandomHorizontalFlip(),
-                    ST.ToTensor(),
-                    ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-                ])
-        temporal_transform_train = TT.TemporalRandomCrop(size=cfg.DATALOADER.SEQLEN, stride=cfg.DATALOADER.SAMSTREDE)
-
-        spatial_transform_test = ST.Compose([
-                    ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
-                    ST.ToTensor(),
-                    ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-                ])
-        temporal_transform_test = TT.TemporalBeginCrop()
-        #%% 数据集
-        print("Initializing dataset {}".format(dataset_name))
-        dataset = data_manager.init_dataset(name=dataset_name, root=cfg.DATASETS.ROOT_DIR)
-
-        #%% dataloader
-        if cfg.DATASETS.NAMES != 'MARS':
-            trainloader = DataLoader(
-                VideoDataset(dataset.train_dense, spatial_transform=spatial_transform_train, temporal_transform=temporal_transform_train),
-                sampler=RandomIdentitySampler_vid(dataset.train_dense, num_instances=cfg_num_instances),
-                batch_size=batch_size, num_workers=cfg_num_workers,
-                pin_memory=pin_memory, drop_last=True)
-        else:
-            trainloader = DataLoader(
-            VideoDataset(dataset.train, spatial_transform=spatial_transform_train, temporal_transform=temporal_transform_train),
-            sampler=RandomIdentitySampler_vid(dataset.train, num_instances=cfg_num_instances),
-            batch_size=batch_size, num_workers=cfg_num_workers,
-            pin_memory=pin_memory, drop_last=True)
-
-        queryloader = DataLoader(
-            VideoDataset(dataset.query, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
-            batch_size=test_batch_size, shuffle=False, num_workers=0,
-            pin_memory=pin_memory, drop_last=False)
-
-        galleryloader = DataLoader(
-            VideoDataset(dataset.gallery, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
-            batch_size=test_batch_size, shuffle=False, num_workers=0,
-            pin_memory=pin_memory, drop_last=False)
-        # return train_loader, val_loader, len(dataset.query), num_classes, cam_num, view_num
-        view_num = None
-        num_classes = dataset.num_train_pids
-        cam_num = dataset.num_cameras
-        view_num = dataset.num_view
-        return trainloader, val_loader, len(dataset.query), num_classes, cam_num, view_num
+        return IMG()
+        
 
