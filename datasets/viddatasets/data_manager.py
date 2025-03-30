@@ -42,7 +42,7 @@ class Mars(object):
         self.track_test_info_path = osp.join(self.root, 'info/tracks_test_info.mat')
         self.query_IDX_path = osp.join(self.root, 'info/query_IDX.mat')
         self.num_cameras=6
-        self.view=1
+        self.num_view=1
         self.num_ids=1261
         
         self._check_before_run()
