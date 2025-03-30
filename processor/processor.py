@@ -41,12 +41,12 @@ def do_train(cfg,
     evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
     scaler = amp.GradScaler()
     
-    #%% train  日志
+    # train  日志
     import time
     from datetime import timedelta
     all_start_time = time.monotonic()
     logger.info("model: {}".format(model))
-    #%% 训练周期
+    # 训练周期
     for epoch in range(1, epochs + 1):
         start_time = time.time() # 打日志 初始化
         loss_meter.reset()
@@ -72,12 +72,12 @@ def do_train(cfg,
             with amp.autocast(enabled=True):# 混合精度训练
                 score, feat = model(img, target, cam_label=target_cam, view_label=target_view) # 前向传播
                 loss = loss_fn(score, feat, target, target_cam)# 计算损失
-            #%%
+            #
             scaler.scale(loss).backward()# 反向传播
 
             scaler.step(optimizer)# 更新参数
             scaler.update()# 更新缩放因子
-            #%%
+            #
             if 'center' in cfg.MODEL.METRIC_LOSS_TYPE: # 更新中心损失
                 for param in center_criterion.parameters():
                     param.grad.data *= (1. / cfg.SOLVER.CENTER_LOSS_WEIGHT)
@@ -90,16 +90,16 @@ def do_train(cfg,
             # 
             loss_meter.update(loss.item(), img.shape[0])
             acc_meter.update(acc, 1)
-            #%%
+            #
             torch.cuda.synchronize()# 同步
             if (n_iter + 1) % log_period == 0:
                 logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, Acc: {:.3f}, Base Lr: {:.2e}"
                             .format(epoch, (n_iter + 1), len(train_loader),
                                     loss_meter.avg, acc_meter.avg, scheduler.get_lr()[0]))
-#%% 一个minibatch训练结束
-        end_time = time.time()# 仅仅是minibatch结束，不是epoch结束
+            # 一个minibatch训练结束
+        end_time = time.time()# epoch结束
         time_per_batch = (end_time - start_time) / (n_iter + 1)
-        if cfg.MODEL.DIST_TRAIN:# 分布式训练用结束
+        if cfg.MODEL.DIST_TRAIN:# 分布式训练结束
             pass
         else:
             logger.info("Epoch {} done. Time per batch: {:.3f}[s] Speed: {:.1f}[samples/s]"
@@ -116,7 +116,7 @@ def do_train(cfg,
 
         if epoch % eval_period == 0:# 当前epoch是评估周期的整数倍时，进行评估
             if cfg.MODEL.DIST_TRAIN:# 分布式训练用
-                if dist.get_rank() == 0:
+                if dist.get_rank() == 0:# 如果是主进程，进行单卡评估
                     model.eval()
                     for n_iter, (img, vid, camid, camids, target_view, _) in enumerate(val_loader):
                         with torch.no_grad():
@@ -142,14 +142,14 @@ def do_train(cfg,
                 for n_iter, (img, vid, camid, camids, target_view, _) in enumerate(val_loader):
                     with torch.no_grad():
                         img = img.to(device)
-                        if cfg.MODEL.SIE_CAMERA:
+                        if cfg.MODEL.SIE_CAMERA:###
                             camids = camids.to(device)
                         else: 
                             camids = None
                         if cfg.MODEL.SIE_VIEW:
                             target_view = target_view.to(device)
                         else: 
-                            target_view = None
+                            target_view = None###
                         feat = model(img, cam_label=camids, view_label=target_view)
                         evaluator.update((feat, vid, camid))
                 cmc, mAP, _, _, _, _, _ = evaluator.compute()
@@ -197,12 +197,12 @@ def do_train_vid(cfg,
     evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
     scaler = amp.GradScaler()
     
-    #%% train  日志
+    # train  日志
     import time
     from datetime import timedelta
     all_start_time = time.monotonic()
     logger.info("model: {}".format(model))
-    #%% 训练周期
+    # 训练周期
     for epoch in range(1, epochs + 1):
         start_time = time.time() # 打日志 初始化
         loss_meter.reset()
@@ -228,12 +228,12 @@ def do_train_vid(cfg,
             with amp.autocast(enabled=True):# 混合精度训练
                 score, feat = model(img, target, cam_label=target_cam, view_label=target_view) # 前向传播
                 loss = loss_fn(score, feat, target, target_cam)# 计算损失
-            #%%
+            #
             scaler.scale(loss).backward()# 反向传播
 
             scaler.step(optimizer)# 更新参数
             scaler.update()# 更新缩放因子
-            #%%
+            #
             if 'center' in cfg.MODEL.METRIC_LOSS_TYPE: # 更新中心损失
                 for param in center_criterion.parameters():
                     param.grad.data *= (1. / cfg.SOLVER.CENTER_LOSS_WEIGHT)
@@ -246,13 +246,13 @@ def do_train_vid(cfg,
             # 
             loss_meter.update(loss.item(), img.shape[0])
             acc_meter.update(acc, 1)
-            #%%
+            #
             torch.cuda.synchronize()# 同步
             if (n_iter + 1) % log_period == 0:
                 logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, Acc: {:.3f}, Base Lr: {:.2e}"
                             .format(epoch, (n_iter + 1), len(train_loader),
                                     loss_meter.avg, acc_meter.avg, scheduler.get_lr()[0]))
-#%% 一个minibatch训练结束
+# 一个minibatch训练结束
         end_time = time.time()# 仅仅是minibatch结束，不是epoch结束
         time_per_batch = (end_time - start_time) / (n_iter + 1)
         if cfg.MODEL.DIST_TRAIN:# 分布式训练用结束
@@ -321,7 +321,7 @@ def do_train_vid(cfg,
     print(cfg.OUTPUT_DIR)
 
 
-def do_inference(cfg,
+def do_inference(cfg,## test->推理
                  model,
                  val_loader,
                  num_query):

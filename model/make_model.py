@@ -78,7 +78,7 @@ class build_transformer(nn.Module):
             trunc_normal_(self.cv_embed, std=.02)
             print('camera number is : {}'.format(view_num))
 
-    def forward(self, x, label=None, cam_label= None, view_label=None):
+    def forward(self, x, label=None, cam_label= None, view_label=None):# test->here
         if self.model_name == 'RN50':
             image_features_last, image_features, image_features_proj = self.image_encoder(x) #B,512  B,128,512
             img_feature_last = nn.functional.avg_pool2d(image_features_last, image_features_last.shape[2:4]).view(x.shape[0], -1) 
@@ -115,7 +115,7 @@ class build_transformer(nn.Module):
                 return torch.cat([img_feature, img_feature_proj], dim=1)
 
 
-    def load_param(self, trained_path):
+    def load_param(self, trained_path):# 加载训练权重
         param_dict = torch.load(trained_path)
         for i in param_dict:
             self.state_dict()[i.replace('module.', '')].copy_(param_dict[i])
@@ -128,7 +128,7 @@ class build_transformer(nn.Module):
         print('Loading pretrained model for finetuning from {}'.format(model_path))
 
 
-def make_model(cfg, num_class, camera_num, view_num):
+def make_model(cfg, num_class, camera_num, view_num):##
     model = build_transformer(num_class, camera_num, view_num, cfg)
     return model
 

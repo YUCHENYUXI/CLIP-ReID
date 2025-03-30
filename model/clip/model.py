@@ -37,7 +37,7 @@ class Bottleneck(nn.Module):
                 ("1", nn.BatchNorm2d(planes * self.expansion))
             ]))
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor):# layer1
         identity = x
 
         out = self.relu(self.bn1(self.conv1(x)))
@@ -132,7 +132,7 @@ class ModifiedResNet(nn.Module):
 
     def forward(self, x): 
         def stem(x):
-            for conv, bn in [(self.conv1, self.bn1), (self.conv2, self.bn2), (self.conv3, self.bn3)]:
+            for conv, bn in [(self.conv1, self.bn1), (self.conv2, self.bn2), (self.conv3, self.bn3)]:# funciton: conv + bn + relu
                 x = self.relu(bn(conv(x)))
             x = self.avgpool(x)
             return x

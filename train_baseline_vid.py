@@ -22,7 +22,7 @@ def set_seed(seed):
     torch.backends.cudnn.benchmark = True
 
 if __name__ == '__main__':
-#%%
+#
     parser = argparse.ArgumentParser(description="ReID Baseline Training")
     parser.add_argument(
         "--config_file", default="configs/person/vit_base.yml", help="path to config file", type=str
@@ -60,12 +60,12 @@ if __name__ == '__main__':
     if cfg.MODEL.DIST_TRAIN:
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
 
-    #%% update configs
+    # update configs
     os.environ['CUDA_VISIBLE_DEVICES'] = cfg.MODEL.DEVICE_ID # 明确最后获取的dataset是什么；即train_loader, val_loader, num_query, num_classes, camera_num, view_num的含义
     
     # 最后需要的是train_loader, val_loader, num_query, num_classes, camera_num, view_num
     train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
-    #%%
+    #
     model = make_model(cfg, num_class=num_classes, camera_num=camera_num, view_num = view_num)
 
     loss_func, center_criterion = make_loss(cfg, num_classes=num_classes)
