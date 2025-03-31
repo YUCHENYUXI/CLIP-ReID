@@ -130,7 +130,7 @@ def make_dataloader(cfg):
         
         # 重点！获取数据集 # 1. 通过cfg.DATASETS.NAMES获取数据集的名称，然后通过__factory获取数据集的类
         dataset = __factory[cfg.DATASETS.NAMES](root=cfg.DATASETS.ROOT_DIR)
-        train_set = ImageDataset(dataset.train, train_transforms)
+        train_set = ImageDataset(dataset.train, train_transforms) ## img, pid, camid, trackid, img_path.split('/')[-1]
         train_set_normal = ImageDataset(dataset.train, val_transforms)
         num_classes = dataset.num_train_pids
         cam_num = dataset.num_train_cams
@@ -151,8 +151,8 @@ def make_dataloader(cfg):
                     pin_memory=True,
                 )
             else:
-                train_loader = DataLoader(
-                    train_set, 
+                train_loader = DataLoader( 
+                    train_set, # img, pid, camid, trackid, img_path.split('/')[-1]
                     batch_size=cfg.SOLVER.IMS_PER_BATCH,
                     sampler=RandomIdentitySampler(
                         dataset.train,
