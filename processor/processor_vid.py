@@ -70,7 +70,7 @@ def do_train(cfg,
             target_view = None
 
             #---
-            batch_size, channels, num_frames, height, width = vids.shape  # (64,3,4,256,128)
+            batch_size, channels, num_frames, height, width = vids.shape  # (32,3,4,256,128)
 
             all_scores = []
             all_feats = []
@@ -78,7 +78,7 @@ def do_train(cfg,
 
             with torch.cuda.amp.autocast(enabled=True):  # 使用混合精度加速
                 for i in range(num_frames):  
-                    frame = vids[:, :, i, :, :]  # 取第 i 帧，shape: (64,3,256,128)
+                    frame = vids[:, :, i, :, :]  # 取第 i 帧，shape: (32,3,256,128)
                     score_i, feat_i = model(frame, target, cam_label=target_cam, view_label=target_view)
                     all_scores.append(score_i)
                     all_feats.append(feat_i)
