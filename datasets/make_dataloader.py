@@ -101,8 +101,8 @@ def make_dataloader(cfg):
         val_set, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
         collate_fn=val_collate_fn
     )
-    train_loader_normal = DataLoader(
-        train_set_normal, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
-        collate_fn=val_collate_fn
-    )
-    return train_loader, train_loader_normal, val_loader, len(dataset.query), num_classes, cam_num, view_num
+    # train_loader_normal = DataLoader(
+    #     train_set_normal, batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=num_workers,
+    #     collate_fn=val_collate_fn
+    # )
+    return train_loader ,  val_loader, len(dataset.query), num_classes, cam_num, view_num

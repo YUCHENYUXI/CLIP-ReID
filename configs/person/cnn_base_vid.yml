@@ -44,14 +44,14 @@ TEST:
   EVAL: True
   IMS_PER_BATCH: 64
   RE_RANKING: False
-  WEIGHT: ''
+  WEIGHT: 'res/cnn_base_vid/RN50_120.pth'
   NECK_FEAT: 'before'
   FEAT_NORM: 'yes'
 
 DATASETS:
-  NAMES: ('market1501')
+  NAMES: ('mars')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/cnnbase'
+OUTPUT_DIR: 'res/cnn_base_vid'
 
 #   NAMES: ('dukemtmc')
 #   ROOT_DIR: ('')
