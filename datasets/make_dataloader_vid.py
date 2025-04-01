@@ -47,24 +47,13 @@ def make_dataloader(cfg):
             sampler=RandomIdentitySampler(dataset.train, num_instances=cfg.DATALOADER.NUM_INSTANCE),
             batch_size=cfg.SOLVER.IMS_PER_BATCH, num_workers=cfg.DATALOADER.NUM_WORKERS,
             pin_memory=pin_memory, drop_last=True)
-    
-    # queryloader = DataLoader(
-    #     VideoDataset(dataset.query, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
-    #     batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=0,
-    #     pin_memory=pin_memory, drop_last=False)
-
-    # galleryloader = DataLoader(
-    #     VideoDataset(dataset.gallery, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
-    #     batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=0,
-    #     pin_memory=pin_memory, drop_last=False)
-    
-    train_loader = trainloader
 
     val_loader = DataLoader(
         VideoDataset(dataset.query + dataset.gallery, spatial_transform=spatial_transform_test, temporal_transform=temporal_transform_test),
         batch_size=cfg.TEST.IMS_PER_BATCH, shuffle=False, num_workers=0,
-        pin_memory=pin_memory, drop_last=False)
+        pin_memory=pin_memory, drop_last=True)
     
+    train_loader = trainloader
     cam_num = dataset.cam_num
     view_num = dataset.view_num
     num_classes = dataset.num_train_pids

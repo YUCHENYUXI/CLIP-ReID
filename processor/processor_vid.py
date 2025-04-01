@@ -54,22 +54,44 @@ def do_train(cfg,
         scheduler.step()
 
         model.train()
-        for n_iter, (img, vid, target_cam, target_view) in enumerate(train_loader):
+        for n_iter, (vids, pids, target_cam) in enumerate(train_loader):
+            
             optimizer.zero_grad()
             optimizer_center.zero_grad()
-            img = img.to(device)
-            target = vid.to(device)
+            vids = vids.to(device)
+            target = pids.to(device)
             if cfg.MODEL.SIE_CAMERA:
                 target_cam = target_cam.to(device)
             else: 
                 target_cam = None
-            if cfg.MODEL.SIE_VIEW:
-                target_view = target_view.to(device)
-            else: 
-                target_view = None
-            with amp.autocast(enabled=True):
-                score, feat = model(img, target, cam_label=target_cam, view_label=target_view)
+            # if cfg.MODEL.SIE_VIEW:
+            #     target_view = target_view.to(device)
+            # else: 
+            target_view = None
+
+            #---
+            batch_size, channels, num_frames, height, width = vids.shape  # (64,3,4,256,128)
+
+            all_scores = []
+            all_feats = []
+
+
+            with torch.cuda.amp.autocast(enabled=True):  # 使用混合精度加速
+                for i in range(num_frames):  
+                    frame = vids[:, :, i, :, :]  # 取第 i 帧，shape: (64,3,256,128)
+                    score_i, feat_i = model(frame, target, cam_label=target_cam, view_label=target_view)
+                    all_scores.append(score_i)
+                    all_feats.append(feat_i)
+
+                # 融合 score            # score_i 是长度为 2 的 list，我们需要对 list 内部的 tensor 取均值
+                score = [torch.stack([all_scores[t][j] for t in range(num_frames)]).mean(dim=0) for j in range(2)]
+
+                # 融合 feat            # feat_i 是长度为 3 的 list，我们同样对 list 内部的 tensor 取均值
+                feat = [torch.stack([all_feats[t][j] for t in range(num_frames)]).mean(dim=0) for j in range(3)]
+
+                # 计算损失
                 loss = loss_fn(score, feat, target, target_cam)
+            #---
 
             scaler.scale(loss).backward()
 
@@ -86,7 +108,7 @@ def do_train(cfg,
             else:
                 acc = (score.max(1)[1] == target).float().mean()
 
-            loss_meter.update(loss.item(), img.shape[0])
+            loss_meter.update(loss.item(), vids.shape[0])
             acc_meter.update(acc, 1)
 
             torch.cuda.synchronize()
@@ -112,21 +134,20 @@ def do_train(cfg,
                 torch.save(model.state_dict(),
                            os.path.join(cfg.OUTPUT_DIR, cfg.MODEL.NAME + '_{}.pth'.format(epoch)))
 
-        if epoch % eval_period == 0:
+        if epoch % eval_period == 0 and False:
             if cfg.MODEL.DIST_TRAIN:
                 if dist.get_rank() == 0:
                     model.eval()
-                    for n_iter, (img, vid, camid, camids, target_view, _) in enumerate(val_loader):
+                    for n_iter, (img, vid, camid, camids, _) in enumerate(val_loader):
                         with torch.no_grad():
                             img = img.to(device)
                             if cfg.MODEL.SIE_CAMERA:
                                 camids = camids.to(device)
                             else: 
                                 camids = None
-                            if cfg.MODEL.SIE_VIEW:
-                                target_view = target_view.to(device)
-                            else: 
-                                target_view = None
+                            
+                            
+                            target_view = None
                             feat = model(img, cam_label=camids, view_label=target_view)
                             evaluator.update((feat, vid, camid))
                     cmc, mAP, _, _, _, _, _ = evaluator.compute()

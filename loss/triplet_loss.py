@@ -75,7 +75,7 @@ def hard_example_mining(dist_mat, labels, return_inds=False):
     # `dist_ap` means distance(anchor, positive)
     # both `dist_ap` and `relative_p_inds` with shape [N, 1]
     dist_ap, relative_p_inds = torch.max(
-        dist_mat[is_pos].contiguous().view(N, -1), 1, keepdim=True) 
+        dist_mat[is_pos].contiguous().view(N, -1), 1, keepdim=True)
     # print(dist_mat[is_pos].shape)
     # `dist_an` means distance(anchor, negative)
     # both `dist_an` and `relative_n_inds` with shape [N, 1]

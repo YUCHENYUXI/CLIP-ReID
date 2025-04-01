@@ -136,7 +136,7 @@ class ModifiedResNet(nn.Module):
                 x = self.relu(bn(conv(x)))
             x = self.avgpool(x)
             return x
-
+        
         x = x.type(self.conv1.weight.dtype) 
         x = stem(x) 
         x = self.layer1(x) 
