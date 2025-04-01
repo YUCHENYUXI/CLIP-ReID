@@ -1,0 +1,50 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CLIP_IMG_TRAIN",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train.py", // 关键修改点1
+            "args": [
+                "--config_file",
+                "configs/person/cnn_base.yml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}" // 关键修改点2
+        },
+        {
+            "name": "CLIP_VID_迁移调试",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_baseline_vid.py", // 关键修改点1
+            "args": [
+                "--config_file",
+                "configs/person/cnn_base_vid_mars.yml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}" // 关键修改点2
+        },
+        {
+            "name": "CLIP_IMG_TEST",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test.py", // 关键修改点1
+            "args": [
+                "--config_file", "configs/person/cnn_base.yml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}" // 关键修改点2
+        },
+        
+    ]
+}
