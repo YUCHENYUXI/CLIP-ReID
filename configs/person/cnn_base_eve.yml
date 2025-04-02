@@ -27,7 +27,7 @@ SOLVER:
   BASE_LR: 0.00035
   WARMUP_METHOD: 'linear'
   WARMUP_ITERS: 10
-  WARMUP_FACTOR: 0.01
+  WARMUP_FACTOR: 0.01  
   WEIGHT_DECAY:  0.0005
   WEIGHT_DECAY_BIAS: 0.0005
   LARGE_FC_LR: False
@@ -44,14 +44,14 @@ TEST:
   EVAL: True
   IMS_PER_BATCH: 32
   RE_RANKING: False
-  WEIGHT: 'res/cnn_base_vid2/RN50_120.pth'
+  WEIGHT: ''
   NECK_FEAT: 'before'
   FEAT_NORM: 'yes'
 
 DATASETS:
-  NAMES: ('mars')
+  NAMES: ('event')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/cnn_base_vid2'
+OUTPUT_DIR: 'res/cnn_base_eve'
 
 #   NAMES: ('dukemtmc')
 #   ROOT_DIR: ('')
