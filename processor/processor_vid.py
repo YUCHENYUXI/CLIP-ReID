@@ -134,21 +134,35 @@ def do_train(cfg,
                 torch.save(model.state_dict(),
                            os.path.join(cfg.OUTPUT_DIR, cfg.MODEL.NAME + '_{}.pth'.format(epoch)))
 
-        if True or epoch % eval_period == 0 :
+        if epoch % eval_period == 0 :
             if cfg.MODEL.DIST_TRAIN:
                 if dist.get_rank() == 0:
                     model.eval()
-                    for n_iter, (img, vid, camid, camids, _) in enumerate(val_loader):
+                    for n_iter, (imgs, vid, camid) in enumerate(val_loader):
+                        camids = torch.tensor(camid, device=device).clone().detach()
+                        target_view = None
                         with torch.no_grad():
-                            img = img.to(device)
+                            imgs = imgs.to(device)
                             if cfg.MODEL.SIE_CAMERA:
                                 camids = camids.to(device)
                             else: 
                                 camids = None
-                            
-                            
-                            target_view = None
-                            feat = model(img, cam_label=camids, view_label=target_view)
+                            if cfg.MODEL.SIE_VIEW:
+                                target_view = target_view.to(device)
+                            else: 
+                                target_view = None
+                            #--
+                            batch_size, channels, num_frames, height, width = imgs.shape  # (32,3,4,256,128)
+                            all_feats = []
+                            for i in range(num_frames):  
+                                frame = imgs[:, :, i, :, :]  # 取第 i 帧，shape: (32,3,256,128)
+                                feat_i = model(frame, cam_label=camids, view_label=target_view)
+                                all_feats.append(feat_i)
+
+                            # 融合 feat            # feat_i 是长度为 3 的 list，我们同样对 list 内部的 tensor 取均值
+                            feat = torch.stack([all_feats[t] for t in range(num_frames)]).mean(dim=0) 
+                            #--
+                            # feat = model(imgs, cam_label=camids, view_label=target_view)
                             evaluator.update((feat, vid, camid))
                     cmc, mAP, _, _, _, _, _ = evaluator.compute()
                     logger.info("Validation Results - Epoch: {}".format(epoch))
@@ -159,7 +173,7 @@ def do_train(cfg,
             else:
                 model.eval()
                 for n_iter, (imgs, vid, camid) in enumerate(val_loader):
-                    camids = torch.tensor(camid, device=device)
+                    camids = torch.tensor(camid, device=device).clone().detach()
                     target_view = None
                     with torch.no_grad():
                         imgs = imgs.to(device)
@@ -216,11 +230,12 @@ def do_inference(cfg,
         model.to(device)
 
     model.eval()
-    img_path_list = []
 
-    for n_iter, (img, pid, camid, camids, target_view, imgpath) in enumerate(val_loader):
+    for n_iter, (imgs, vid, camid) in enumerate(val_loader):
+        camids = torch.tensor(camid, device=device).clone().detach()
+        target_view = None
         with torch.no_grad():
-            img = img.to(device)
+            imgs = imgs.to(device)
             if cfg.MODEL.SIE_CAMERA:
                 camids = camids.to(device)
             else: 
@@ -229,9 +244,19 @@ def do_inference(cfg,
                 target_view = target_view.to(device)
             else: 
                 target_view = None
-            feat = model(img, cam_label=camids, view_label=target_view)
-            evaluator.update((feat, pid, camid))
-            img_path_list.extend(imgpath)
+            #--
+            batch_size, channels, num_frames, height, width = imgs.shape  # (32,3,4,256,128)
+            all_feats = []
+            for i in range(num_frames):  
+                frame = imgs[:, :, i, :, :]  # 取第 i 帧，shape: (32,3,256,128)
+                feat_i = model(frame, cam_label=camids, view_label=target_view)
+                all_feats.append(feat_i)
+
+            # 融合 feat            # feat_i 是长度为 3 的 list，我们同样对 list 内部的 tensor 取均值
+            feat = torch.stack([all_feats[t] for t in range(num_frames)]).mean(dim=0) 
+            #--
+            # feat = model(imgs, cam_label=camids, view_label=target_view)
+            evaluator.update((feat, vid, camid))
 
 
     cmc, mAP, _, _, _, _, _ = evaluator.compute()

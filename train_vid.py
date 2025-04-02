@@ -85,3 +85,4 @@ if __name__ == '__main__':
         loss_func,
         num_query, args.local_rank
     )
+# CUDA_VISIBLE_DEVICES=0 python train_vid.py --config_file configs/person/cnn_base_vid.yml
