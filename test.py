@@ -1,7 +1,7 @@
 import os
 from config import cfg_base as cfg
 import argparse
-from datasets.make_dataloader import make_dataloader
+from datasets.make_dataloader_vid import make_dataloader
 from model.make_model import make_model
 from processor.processor import do_inference
 from utils.logger import setup_logger
