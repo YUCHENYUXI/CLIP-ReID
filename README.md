@@ -1,22 +1,12 @@
-﻿## CLIP-ReID: Exploiting Vision-Language Model for Image Re-Identification without Concrete Text Labels [[pdf]](https://arxiv.org/pdf/2211.13977.pdf)
- [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/clip-reid-exploiting-vision-language-model/person-re-identification-on-msmt17)](https://paperswithcode.com/sota/person-re-identification-on-msmt17?p=clip-reid-exploiting-vision-language-model)
-
-### Pipeline
-
-![framework](fig/method.png)
-
+﻿
 ### Installation
 
-```
+``` bash
 conda create -n clipreid python=3.8
 conda activate clipreid
 conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=10.2 -c pytorch
-pip install yacs
-pip install timm
-pip install scikit-image
-pip install tqdm
-pip install ftfy
-pip install regex
+pip install yacs timm scikit-image tqdm ftfy regex
+
 ```
 
 ### Prepare Dataset
@@ -88,16 +78,3 @@ The veri776 viewpoint label is from https://github.com/Zhongdao/VehicleReIDKeyPo
 Note that all results listed above are without re-ranking.
 
 With re-ranking, ViT-CLIP-ReID-SIE-OLP achieves 86.7% mAP and  91.1% R1 on MSMT17.
-### Citation
-
-If you use this code for your research, please cite
-
-```
-@article{li2022clip,
-  title={CLIP-ReID: Exploiting Vision-Language Model for Image Re-Identification without Concrete Text Labels},
-  author={Li, Siyuan and Sun, Li and Li, Qingli},
-  journal={arXiv preprint arXiv:2211.13977},
-  year={2022}
-}
-```
-
