@@ -1,6 +1,5 @@
 from __future__ import print_function, absolute_import
 import numpy as np
-import copy
 
 
 def compute_ap_cmc(index, good_index, junk_index):
@@ -14,7 +13,7 @@ def compute_ap_cmc(index, good_index, junk_index):
     # find good_index index
     ngood = len(good_index)
     mask = np.in1d(index, good_index)
-    rows_good = np.argwhere(mask==True)
+    rows_good = np.argwhere(mask is True)
     rows_good = rows_good.flatten()
     
     cmc[rows_good[0]:] = 1.0

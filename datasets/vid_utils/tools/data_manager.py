@@ -1,11 +1,8 @@
 from __future__ import print_function, absolute_import
 import os
 import glob
-import re
-import sys
 import urllib
 import tarfile
-import zipfile
 import os.path as osp
 from scipy.io import loadmat
 import numpy as np
@@ -126,16 +123,19 @@ class Mars(object):
         pid_list = list(set(meta_data[:,2].tolist()))
         num_pids = len(pid_list)
 
-        if relabel: pid2label = {pid:label for label, pid in enumerate(pid_list)}
+        if relabel: 
+            pid2label = {pid:label for label, pid in enumerate(pid_list)}
         tracklets = []
         num_imgs_per_tracklet = []
 
         for tracklet_idx in range(num_tracklets):
             data = meta_data[tracklet_idx,...]
             start_index, end_index, pid, camid = data
-            if pid == -1: continue # junk images are just ignored
+            if pid == -1: 
+                continue # junk images are just ignored
             assert 1 <= camid <= 6
-            if relabel: pid = pid2label[pid]
+            if relabel: 
+                pid = pid2label[pid]
             camid -= 1 # index starts from 0
             img_names = names[start_index-1:end_index]
 
@@ -486,7 +486,8 @@ class DukeMTMCVidReID(object):
         num_imgs_per_tracklet = []
         for pdir in pdirs:
             pid = int(osp.basename(pdir))
-            if relabel: pid = pid2label[pid]
+            if relabel: 
+                pid = pid2label[pid]
             tdirs = glob.glob(osp.join(pdir, '*'))
             for tdir in tdirs:
                 raw_img_paths = glob.glob(osp.join(tdir, '*.jpg'))
@@ -549,7 +550,8 @@ class DukeMTMCVidReID(object):
         num_imgs_per_tracklet = []
         for pdir in pdirs:
             pid = int(osp.basename(pdir))
-            if relabel: pid = pid2label[pid]
+            if relabel: 
+                pid = pid2label[pid]
             tdirs = glob.glob(osp.join(pdir, '*'))
             for tdir in tdirs:
                 raw_img_paths = glob.glob(osp.join(tdir, '*.jpg'))

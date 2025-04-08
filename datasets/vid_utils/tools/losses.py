@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import torch
 from torch import nn
-from torch.autograd import Variable
+# from torch.autograd import Variable
 
 __all__ = ['TripletLoss']
 

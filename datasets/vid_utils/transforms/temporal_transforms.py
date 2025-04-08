@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import random
-import math
+# import math
 import numpy as np
 
 
@@ -51,7 +51,7 @@ class TemporalCenterCrop(object):
 
         out = list(frame_indices[begin_index:end_index])
 
-        if self.padding == True:
+        if self.padding is True:
             if self.pad_method == 'loop':
                 while len(out) < self.size:
                     for index in out:

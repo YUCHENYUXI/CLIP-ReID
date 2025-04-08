@@ -1,13 +1,13 @@
 from torch.utils.data.sampler import Sampler
 from collections import defaultdict
 import copy
-import random
+# import random
 import numpy as np
 import math
 import torch.distributed as dist
-_LOCAL_PROCESS_GROUP = None
 import torch
 import pickle
+_LOCAL_PROCESS_GROUP = None
 
 def _get_global_gloo_group():
     """
@@ -188,7 +188,8 @@ class RandomIdentitySampler_DDP(Sampler):
                 for _ in range(self.num_instances):
                     batch_indices.append(avai_idxs.pop(0))
 
-                if len(avai_idxs) < self.num_instances: avai_pids.remove(pid)
+                if len(avai_idxs) < self.num_instances: 
+                    avai_pids.remove(pid)
 
         return batch_indices
 

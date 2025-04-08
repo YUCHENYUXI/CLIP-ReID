@@ -15,12 +15,12 @@ def pil_loader(path):
 
 
 def accimage_loader(path):
-    try:
-        import accimage
-        return accimage.Image(path)
-    except IOError:
+    # try:
+    #     import accimage
+    #     return accimage.Image(path)
+    # except IOError:
         # Potentially a decoding problem, fall back to PIL.Image
-        return pil_loader(path)
+    return pil_loader(path)
 
 
 def get_default_image_loader():

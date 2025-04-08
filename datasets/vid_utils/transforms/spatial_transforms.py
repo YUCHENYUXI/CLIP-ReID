@@ -1,16 +1,16 @@
 from __future__ import absolute_import
 
 import random
-import math
+# import math
 import numbers
 import collections
 import numpy as np
 import torch
-from PIL import Image, ImageOps
-try:
-    import accimage
-except ImportError:
-    accimage = None
+from PIL import Image #, ImageOps
+# try:
+#     import accimage
+# except ImportError:
+accimage = None
 
 
 class Compose(object):
