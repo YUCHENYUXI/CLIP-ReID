@@ -17,7 +17,7 @@ class ContrastiveLoss(nn.Module):
         sim_mat = torch.matmul(inputs, inputs.t())
         targets = targets
         loss = list()
-        c = 0
+        # c = 0
 
         for i in range(n):
             pos_pair_ = torch.masked_select(sim_mat[i], targets == targets[i])

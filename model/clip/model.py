@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
+import math
 
 
 class Bottleneck(nn.Module):
@@ -220,7 +221,7 @@ class VisionTransformer(nn.Module):
         x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
         x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
-        if cv_emb != None: 
+        if cv_emb is not None: 
             x[:,0] = x[:,0] + cv_emb
         x = x + self.positional_embedding.to(x.dtype)
         x = self.ln_pre(x)
@@ -378,7 +379,7 @@ class CLIP(nn.Module):
 def convert_weights(model: nn.Module):
     """Convert applicable model parameters to fp16"""
 
-    def _convert_weights_to_fp16(l):
+    def _convert_weights_to_fp16(l):  # noqa: E741
         if isinstance(l, (nn.Conv1d, nn.Conv2d, nn.Linear)):
             l.weight.data = l.weight.data.float()
             if l.bias is not None:
@@ -422,7 +423,7 @@ def build_model(state_dict: dict, h_resolution: int, w_resolution: int, vision_s
     vocab_size = state_dict["token_embedding.weight"].shape[0]
     transformer_width = state_dict["ln_final.weight"].shape[0]
     transformer_heads = transformer_width // 64
-    transformer_layers = len(set(k.split(".")[2] for k in state_dict if k.startswith(f"transformer.resblocks")))
+    transformer_layers = len(set(k.split(".")[2] for k in state_dict if k.startswith("transformer.resblocks")))
 
     model = CLIP(
         embed_dim,
@@ -445,7 +446,6 @@ def build_model(state_dict: dict, h_resolution: int, w_resolution: int, vision_s
     model.load_state_dict(state_dict)
     return model.eval()
 
-import math
 def resize_pos_embed(posemb, posemb_new, hight, width):
     # Rescale the grid of position embeddings when loading from state_dict. Adapted from
     # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224

@@ -1,9 +1,10 @@
+from timm.layers import  trunc_normal_
 import torch
 import torch.nn as nn
-import numpy as np
 from .clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
+from .clip import clip
+
 _tokenizer = _Tokenizer()
-from timm.layers import DropPath, to_2tuple, trunc_normal_
 
 def weights_init_kaiming(m):
     classname = m.__class__.__name__
@@ -86,11 +87,11 @@ class build_transformer(nn.Module):
             img_feature_proj = image_features_proj[0]
 
         elif self.model_name == 'ViT-B-16':
-            if cam_label != None and view_label!=None:
+            if cam_label is not None and view_label is not None:
                 cv_embed = self.sie_coe * self.cv_embed[cam_label * self.view_num + view_label]
-            elif cam_label != None:
+            elif cam_label  is not  None:
                 cv_embed = self.sie_coe * self.cv_embed[cam_label]
-            elif view_label!=None:
+            elif view_label is not None:
                 cv_embed = self.sie_coe * self.cv_embed[view_label]
             else:
                 cv_embed = None
@@ -133,7 +134,6 @@ def make_model(cfg, num_class, camera_num, view_num):
     return model
 
 
-from .clip import clip
 def load_clip_to_cpu(backbone_name, h_resolution, w_resolution, vision_stride_size):
     url = clip._MODELS[backbone_name]
     model_path = clip._download(url)

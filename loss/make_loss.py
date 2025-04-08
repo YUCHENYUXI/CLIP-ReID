@@ -5,7 +5,7 @@
 """
 
 import torch.nn.functional as F
-from .softmax_loss import CrossEntropyLabelSmooth, LabelSmoothingCrossEntropy
+from .softmax_loss import CrossEntropyLabelSmooth #, LabelSmoothingCrossEntropy
 from .triplet_loss import TripletLoss
 from .center_loss import CenterLoss
 
@@ -51,7 +51,7 @@ def make_loss(cfg, num_classes):    # modified by gu
                     
                     loss = cfg.MODEL.ID_LOSS_WEIGHT * ID_LOSS + cfg.MODEL.TRIPLET_LOSS_WEIGHT * TRI_LOSS
 
-                    if i2tscore != None:
+                    if i2tscore  is not  None:
                         I2TLOSS = xent(i2tscore, target)
                         loss = cfg.MODEL.I2T_LOSS_WEIGHT * I2TLOSS + loss
                         
@@ -71,7 +71,7 @@ def make_loss(cfg, num_classes):    # modified by gu
 
                     loss = cfg.MODEL.ID_LOSS_WEIGHT * ID_LOSS + cfg.MODEL.TRIPLET_LOSS_WEIGHT * TRI_LOSS
                     
-                    if i2tscore != None:
+                    if i2tscore  is not  None:
                         I2TLOSS = F.cross_entropy(i2tscore, target)
                         loss = cfg.MODEL.I2T_LOSS_WEIGHT * I2TLOSS + loss
 

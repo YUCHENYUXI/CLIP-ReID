@@ -98,7 +98,7 @@ class SimpleTokenizer(object):
                     j = word.index(first, i)
                     new_word.extend(word[i:j])
                     i = j
-                except:
+                except:  # noqa: E722
                     new_word.extend(word[i:])
                     break
 
