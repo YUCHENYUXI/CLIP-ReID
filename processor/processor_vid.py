@@ -51,7 +51,6 @@ def do_train(cfg,
         acc_meter.reset()
         evaluator.reset()
 
-        scheduler.step()
 
         model.train()
 
@@ -116,6 +115,8 @@ def do_train(cfg,
                 logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, Acc: {:.3f}, Base Lr: {:.2e}"
                             .format(epoch, (n_iter + 1), len(train_loader),
                                     loss_meter.avg, acc_meter.avg, scheduler.get_lr()[0]))
+
+        scheduler.step()
 
         end_time = time.time()
         time_per_batch = (end_time - start_time) / (n_iter + 1)

@@ -9,7 +9,7 @@ _C = CN()
 # MODEL-----------------------------------------------------------------------------
 _C.MODEL = CN()
 # ID number of GPU
-_C.MODEL.DEVICE_ID = 'no_cho'
+_C.MODEL.DEVICE_ID = '0'
 
 # Name of backbone
 _C.MODEL.NAME = 'no_cho'

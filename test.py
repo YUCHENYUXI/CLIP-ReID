@@ -1,5 +1,5 @@
 import os
-from config import cfg_base as cfg
+from config.defaults_base import _C as cfg
 import argparse
 from datasets.make_dataloader_vid import make_dataloader
 from model.make_model import make_model

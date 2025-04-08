@@ -450,7 +450,7 @@ def resize_pos_embed(posemb, posemb_new, hight, width):
     # Rescale the grid of position embeddings when loading from state_dict. Adapted from
     # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224
     print('Resized position embedding: %s to %s', posemb.shape, posemb_new.shape)
-      
+    
     ntok_new = posemb_new.shape[0] #129,2048
 
     posemb_token, posemb_grid = posemb[:1], posemb[1:]
@@ -459,7 +459,7 @@ def resize_pos_embed(posemb, posemb_new, hight, width):
     gs_old = int(math.sqrt(len(posemb_grid))) #14
     print('Position embedding resize to height:{} width: {}'.format(hight, width))
     posemb_grid = posemb_grid.reshape(1, gs_old, gs_old, -1).permute(0, 3, 1, 2) 
-    posemb_grid = F.interpolate(posemb_grid, size=(hight, width), mode='bilinear') 
+    posemb_grid = F.interpolate(posemb_grid, size=(hight, width), mode='bilinear',align_corners=False) 
     posemb_grid = posemb_grid.permute(0, 2, 3, 1).reshape(1, hight * width, -1)
     posemb = torch.cat([posemb_token, posemb_grid.squeeze()], dim=0)
     return posemb

@@ -10,7 +10,7 @@ import torch
 import numpy as np
 import os
 import argparse
-from config import cfg_base as cfg
+from config.defaults_base import _C as cfg
 
 def set_seed():
     seed = cfg.SOLVER.SEED
@@ -39,7 +39,7 @@ def init_all():
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    logger = setup_logger("Info", output_dir, if_train=True)
+    logger = setup_logger("RGB-E", output_dir, if_train=True)
     logger.info("\nSaving path :\n\n{}\n\n".format(cfg.OUTPUT_DIR))
     logger.info(args)
     if args.config_file != "":
