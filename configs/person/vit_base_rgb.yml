@@ -1,76 +1,78 @@
 MODEL:
-  PRETRAIN_CHOICE: 'imagenet'
-  METRIC_LOSS_TYPE: 'triplet'
-  IF_LABELSMOOTH: 'on'
-  IF_WITH_CENTER: 'no'
   NAME: 'ViT-B-16'
-  STRIDE_SIZE: [16, 16]
+  NECK: 'bnneck'
   ID_LOSS_WEIGHT : 1.0
   TRIPLET_LOSS_WEIGHT : 1.0
+  METRIC_LOSS_TYPE: 'triplet'
+  DIST_TRAIN: False
+  NO_MARGIN: False
+  IF_LABELSMOOTH: 'on'
+  COS_LAYER: False
+  STRIDE_SIZE: [16,16]
+  # SIE
+  # SIE_COE: 1.0
   # SIE_CAMERA: True
-  # SIE_COE : 1.0
-  
+  SIE_VIEW: False
+
 INPUT:
   SIZE_TRAIN: [256, 128]
   SIZE_TEST: [256, 128]
-  PROB: 0.5 # random horizontal flip
-  RE_PROB: 0.5 # random erasing
-  PADDING: 10
-  PIXEL_MEAN: [0.5, 0.5, 0.5]
-  PIXEL_STD: [0.5, 0.5, 0.5]
+  seq_len: 4
+  sample_stride: 8
+
+
+  # PROB: 0.5 # random horizontal flip
+  # RE_PROB: 0.5 # random erasing
+  # PADDING: 10
+  # PIXEL_MEAN: [0.5, 0.5, 0.5]
+  # PIXEL_STD: [0.5, 0.5, 0.5]
 
 DATALOADER:
+  NUM_WORKERS: 4
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
-  NUM_WORKERS: 4
 
 SOLVER:
-  IMS_PER_BATCH: 32
-  OPTIMIZER_NAME: "Adam"
-  BASE_LR: 0.00001
-  # BASE_LR: 0.000005
-  WARMUP_METHOD: 'linear'
-  WARMUP_ITERS: 10
-  WARMUP_FACTOR: 0.1
-  WEIGHT_DECAY:  0.0001
-  WEIGHT_DECAY_BIAS: 0.0001
+  OPTIMIZER_NAME: 'Adam'
+  MAX_EPOCHS: 240
+  BASE_LR: 0.00005
   LARGE_FC_LR: False
-  MAX_EPOCHS: 180
-  CHECKPOINT_PERIOD: 180
-  LOG_PERIOD: 50
-  EVAL_PERIOD: 60
   BIAS_LR_FACTOR: 2
-  
-  STEPS: [30, 50]
-  GAMMA: 0.1
+  SEED: 1234
+  MOMENTUM : 0.9
+  MARGIN : 0.3
+  CENTER_LR : 0.5
+  CENTER_LOSS_WEIGHT : 0.0005
+
+  WEIGHT_DECAY : 0.0002
+  WEIGHT_DECAY_BIAS : 0.0002
+
+  GAMMA : 0.1
+  STEPS : (60, 120, 180) #[60, 120, 180]
+  WARMUP_FACTOR : 0.01
+
+  WARMUP_ITERS : 100
+  WARMUP_METHOD : 'linear'
+
+  COSINE_MARGIN : 0.5
+  COSINE_SCALE : 30
+
+  CHECKPOINT_PERIOD : 240
+  LOG_PERIOD : 100
+
+  EVAL_PERIOD : 40
+  IMS_PER_BATCH : 32
   
 TEST:
-  EVAL: True
   IMS_PER_BATCH: 32
   RE_RANKING: False
   WEIGHT: ''
   NECK_FEAT: 'before'
   FEAT_NORM: 'yes'
+  DIST_MAT: 'dist_mat.npy'
+  EVAL: True
 
-DATASETS:
 DATASETS:
   NAMES: ('mars')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/base_vid_vit2'
-#   NAMES: ('market1501')
-#   ROOT_DIR: ('')
-# OUTPUT_DIR: ''
-
-#   NAMES: ('dukemtmc')
-#   ROOT_DIR: ('')
-# OUTPUT_DIR: ''
-
-#   NAMES: ('occ_duke')
-#   ROOT_DIR: ('')
-# OUTPUT_DIR: ''
-
-#   NAMES: ('msmt17')
-#   ROOT_DIR: ('')
-# OUTPUT_DIR: ''
-
-# CUDA_VISIBLE_DEVICES=2 python train.py --config_file configs/person/vit_base.yml
+OUTPUT_DIR: 'res/vit_rgb'

@@ -1,20 +1,19 @@
-2025-04-10 12:14:15,022 RGB-E INFO: 
+2025-04-10 13:10:06,962 RGB-E INFO: 
 Saving path :
 
-res/cnn_base_vid
+res/vit_rgb
 
 
-2025-04-10 12:14:15,022 RGB-E INFO: Namespace(config_file='configs/person/cnn_base_rgb.yml', local_rank=0, opts=[])
-2025-04-10 12:14:15,022 RGB-E INFO: 
+2025-04-10 13:10:06,963 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
+2025-04-10 13:10:06,963 RGB-E INFO: 
 Configuration file:
 
- configs/person/cnn_base_rgb.yml
+ configs/person/vit_base_rgb.yml
 
 
-2025-04-10 12:14:15,023 RGB-E INFO: 
-# config\defaults_base.py
+2025-04-10 13:10:06,964 RGB-E INFO: 
 MODEL:
-  NAME: 'RN50'
+  NAME: 'ViT-B-16'
   NECK: 'bnneck'
   ID_LOSS_WEIGHT : 1.0
   TRIPLET_LOSS_WEIGHT : 1.0
@@ -25,8 +24,8 @@ MODEL:
   COS_LAYER: False
   STRIDE_SIZE: [16,16]
   # SIE
-  SIE_COE: 3.0
-  SIE_CAMERA: False
+  # SIE_COE: 1.0
+  # SIE_CAMERA: True
   SIE_VIEW: False
 
 INPUT:
@@ -34,6 +33,13 @@ INPUT:
   SIZE_TEST: [256, 128]
   seq_len: 4
   sample_stride: 8
+
+
+  # PROB: 0.5 # random horizontal flip
+  # RE_PROB: 0.5 # random erasing
+  # PADDING: 10
+  # PIXEL_MEAN: [0.5, 0.5, 0.5]
+  # PIXEL_STD: [0.5, 0.5, 0.5]
 
 DATALOADER:
   NUM_WORKERS: 4
@@ -43,7 +49,7 @@ DATALOADER:
 SOLVER:
   OPTIMIZER_NAME: 'Adam'
   MAX_EPOCHS: 240
-  BASE_LR: 0.00035
+  BASE_LR: 0.00005
   LARGE_FC_LR: False
   BIAS_LR_FACTOR: 2
   SEED: 1234
@@ -52,29 +58,29 @@ SOLVER:
   CENTER_LR : 0.5
   CENTER_LOSS_WEIGHT : 0.0005
 
-  WEIGHT_DECAY : 0.0005
-  WEIGHT_DECAY_BIAS : 0.0005
+  WEIGHT_DECAY : 0.0002
+  WEIGHT_DECAY_BIAS : 0.0002
 
   GAMMA : 0.1
   STEPS : (60, 120, 180) #[60, 120, 180]
   WARMUP_FACTOR : 0.01
 
-  WARMUP_ITERS : 500
+  WARMUP_ITERS : 100
   WARMUP_METHOD : 'linear'
 
   COSINE_MARGIN : 0.5
   COSINE_SCALE : 30
 
-  CHECKPOINT_PERIOD : 10
+  CHECKPOINT_PERIOD : 240
   LOG_PERIOD : 100
 
-  EVAL_PERIOD : 10
+  EVAL_PERIOD : 40
   IMS_PER_BATCH : 32
-
+  
 TEST:
   IMS_PER_BATCH: 32
   RE_RANKING: False
-  WEIGHT: 'res/cnn_base_vid/RN50_120.pth'
+  WEIGHT: ''
   NECK_FEAT: 'before'
   FEAT_NORM: 'yes'
   DIST_MAT: 'dist_mat.npy'
@@ -83,12 +89,9 @@ TEST:
 DATASETS:
   NAMES: ('mars')
   ROOT_DIR: ('../data')
+OUTPUT_DIR: 'res/vit_rgb'
 
-OUTPUT_DIR: 'res/cnn_base_vid'
-
-# CUDA_VISIBLE_DEVICES:0 python train.py --config_file configs/person/cnn_base.yml
-
-2025-04-10 12:14:15,025 RGB-E INFO: Running with config:
+2025-04-10 13:10:06,966 RGB-E INFO: Running with config:
 DATALOADER:
   NUM_INSTANCE: 4
   NUM_WORKERS: 4
@@ -109,7 +112,7 @@ MODEL:
   ID_LOSS_WEIGHT: 1.0
   IF_LABELSMOOTH: on
   METRIC_LOSS_TYPE: triplet
-  NAME: RN50
+  NAME: ViT-B-16
   NECK: bnneck
   NO_MARGIN: False
   SIE_CAMERA: False
@@ -117,16 +120,16 @@ MODEL:
   SIE_VIEW: False
   STRIDE_SIZE: [16, 16]
   TRIPLET_LOSS_WEIGHT: 1.0
-OUTPUT_DIR: res/cnn_base_vid
+OUTPUT_DIR: res/vit_rgb
 SOLVER:
-  BASE_LR: 0.00035
+  BASE_LR: 5e-05
   BIAS_LR_FACTOR: 2
   CENTER_LOSS_WEIGHT: 0.0005
   CENTER_LR: 0.5
-  CHECKPOINT_PERIOD: 10
+  CHECKPOINT_PERIOD: 240
   COSINE_MARGIN: 0.5
   COSINE_SCALE: 30
-  EVAL_PERIOD: 10
+  EVAL_PERIOD: 40
   GAMMA: 0.1
   IMS_PER_BATCH: 32
   LARGE_FC_LR: False
@@ -138,10 +141,10 @@ SOLVER:
   SEED: 1234
   STEPS: (60, 120, 180)
   WARMUP_FACTOR: 0.01
-  WARMUP_ITERS: 500
+  WARMUP_ITERS: 100
   WARMUP_METHOD: linear
-  WEIGHT_DECAY: 0.0005
-  WEIGHT_DECAY_BIAS: 0.0005
+  WEIGHT_DECAY: 0.0002
+  WEIGHT_DECAY_BIAS: 0.0002
 TEST:
   DIST_MAT: dist_mat.npy
   EVAL: True
@@ -149,4 +152,4 @@ TEST:
   IMS_PER_BATCH: 32
   NECK_FEAT: before
   RE_RANKING: False
-  WEIGHT: res/cnn_base_vid/RN50_120.pth
+  WEIGHT: 

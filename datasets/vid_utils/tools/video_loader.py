@@ -101,7 +101,7 @@ class VideoDataset(data.Dataset):
             clip = [self.spatial_transform(img) for img in clip]
 
         # trans T x C x H x W to C x T x H x W
-        clip = torch.stack(clip, 0).permute(1, 0, 2, 3)
+        clip = torch.stack(clip, 0) # .permute(1, 0, 2, 3)
 
         return clip, pid, camid
 

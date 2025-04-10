@@ -2,10 +2,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "当前",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "CLIP_BASE_VID_CNN",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train_vid.py", 
+            "program": "${workspaceFolder}/train_vid.py",
             "args": [
                 "--config_file",
                 "configs/person/cnn_base_rgb.yml"
@@ -14,14 +21,14 @@
                 "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}" ,
+            "cwd": "${workspaceFolder}",
             "justMyCode": false
         },
         {
             "name": "CLIP_BASE_VID_VIT",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/train_vid.py", 
+            "program": "${workspaceFolder}/train_vid.py",
             "args": [
                 "--config_file",
                 "configs/person/vit_base_rgb.yml"
@@ -30,7 +37,7 @@
                 "CUDA_VISIBLE_DEVICES": "0"
             },
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}" ,
+            "cwd": "${workspaceFolder}",
             "justMyCode": false
         },
     ]

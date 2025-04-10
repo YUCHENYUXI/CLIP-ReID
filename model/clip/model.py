@@ -65,7 +65,7 @@ class AttentionPool2d(nn.Module):
         self.num_heads = num_heads
 
     def forward(self, x): 
-        x = x.reshape(x.shape[0], x.shape[1], x.shape[2] * x.shape[3]).permute(2, 0, 1)  # NCHW -> (HW)NC  #32,2048,7,7 ->49, 32, 2048
+        x = x.view(x.shape[0], x.shape[1], x.shape[2] * x.shape[3]).permute(2, 0, 1)  # NCHW -> (HW)NC  #32,2048,7,7 ->49, 32, 2048
         x = torch.cat([x.mean(dim=0, keepdim=True), x], dim=0)  # (HW+1)NC  50,32,2048
         x = x + self.positional_embedding[:, None, :].to(x.dtype)  # (HW+1)NC
         x, _ = F.multi_head_attention_forward(
@@ -218,7 +218,7 @@ class VisionTransformer(nn.Module):
 
     def forward(self, x: torch.Tensor, cv_emb = None):
         x = self.conv1(x)  # shape = [*, width, grid, grid]
-        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+        x = x.view(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
         x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
         x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
         if cv_emb is not None: 
@@ -449,7 +449,7 @@ def build_model(state_dict: dict, h_resolution: int, w_resolution: int, vision_s
 def resize_pos_embed(posemb, posemb_new, hight, width):
     # Rescale the grid of position embeddings when loading from state_dict. Adapted from
     # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224
-    print('Resized position embedding: %s to %s', posemb.shape, posemb_new.shape)
+    print(f'Resized position embedding: {posemb.shape} to {posemb_new.shape}')
     
     ntok_new = posemb_new.shape[0] #129,2048
 
@@ -458,8 +458,8 @@ def resize_pos_embed(posemb, posemb_new, hight, width):
 
     gs_old = int(math.sqrt(len(posemb_grid))) #14
     print('Position embedding resize to height:{} width: {}'.format(hight, width))
-    posemb_grid = posemb_grid.reshape(1, gs_old, gs_old, -1).permute(0, 3, 1, 2) 
+    posemb_grid = posemb_grid.view(1, gs_old, gs_old, -1).permute(0, 3, 1, 2) 
     posemb_grid = F.interpolate(posemb_grid, size=(hight, width), mode='bilinear',align_corners=False) 
-    posemb_grid = posemb_grid.permute(0, 2, 3, 1).reshape(1, hight * width, -1)
+    posemb_grid = posemb_grid.permute(0, 2, 3, 1).view(1, hight * width, -1)
     posemb = torch.cat([posemb_token, posemb_grid.squeeze()], dim=0)
     return posemb
