@@ -102,9 +102,9 @@ _C.SOLVER.COSINE_MARGIN = 0.5
 _C.SOLVER.COSINE_SCALE = 30
 
 # epoch number of saving checkpoints
-_C.SOLVER.CHECKPOINT_PERIOD = 10
+_C.SOLVER.CHECKPOINT_PERIOD = 30
 # iteration of display training log
-_C.SOLVER.LOG_PERIOD = 100
+_C.SOLVER.LOG_PERIOD = 30
 # epoch number of validation
 _C.SOLVER.EVAL_PERIOD = 10
 # Number of images per batch

@@ -55,7 +55,7 @@ def make_loss(cfg, num_classes):    # modified by gu
                         I2TLOSS = xent(i2tscore, target)
                         loss = cfg.MODEL.I2T_LOSS_WEIGHT * I2TLOSS + loss
                         
-                    return loss
+                    return [loss,ID_LOSS if isinstance(score, list) else -1, TRI_LOSS if isinstance(feat, list) else -1]
                 else:
                     if isinstance(score, list):
                         ID_LOSS = [F.cross_entropy(scor, target) for scor in score[0:]]

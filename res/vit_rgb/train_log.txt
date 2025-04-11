@@ -1,17 +1,17 @@
-2025-04-10 13:10:06,962 RGB-E INFO: 
+2025-04-11 23:28:09,210 RGB-E INFO: 
 Saving path :
 
 res/vit_rgb
 
 
-2025-04-10 13:10:06,963 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
-2025-04-10 13:10:06,963 RGB-E INFO: 
+2025-04-11 23:28:09,210 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
+2025-04-11 23:28:09,210 RGB-E INFO: 
 Configuration file:
 
  configs/person/vit_base_rgb.yml
 
 
-2025-04-10 13:10:06,964 RGB-E INFO: 
+2025-04-11 23:28:09,211 RGB-E INFO: 
 MODEL:
   NAME: 'ViT-B-16'
   NECK: 'bnneck'
@@ -42,14 +42,14 @@ INPUT:
   # PIXEL_STD: [0.5, 0.5, 0.5]
 
 DATALOADER:
-  NUM_WORKERS: 4
+  NUM_WORKERS: 8
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
 
 SOLVER:
   OPTIMIZER_NAME: 'Adam'
   MAX_EPOCHS: 240
-  BASE_LR: 0.00005
+  BASE_LR: 0.000015
   LARGE_FC_LR: False
   BIAS_LR_FACTOR: 2
   SEED: 1234
@@ -63,18 +63,18 @@ SOLVER:
 
   GAMMA : 0.1
   STEPS : (60, 120, 180) #[60, 120, 180]
-  WARMUP_FACTOR : 0.01
+  WARMUP_FACTOR : 0.005
 
-  WARMUP_ITERS : 100
+  WARMUP_ITERS : 600
   WARMUP_METHOD : 'linear'
 
   COSINE_MARGIN : 0.5
   COSINE_SCALE : 30
 
-  CHECKPOINT_PERIOD : 240
-  LOG_PERIOD : 100
+  # CHECKPOINT_PERIOD : 60
+  # LOG_PERIOD : 30
 
-  EVAL_PERIOD : 40
+  # EVAL_PERIOD : 40
   IMS_PER_BATCH : 32
   
 TEST:
@@ -91,10 +91,10 @@ DATASETS:
   ROOT_DIR: ('../data')
 OUTPUT_DIR: 'res/vit_rgb'
 
-2025-04-10 13:10:06,966 RGB-E INFO: Running with config:
+2025-04-11 23:28:09,211 RGB-E INFO: Running with config:
 DATALOADER:
   NUM_INSTANCE: 4
-  NUM_WORKERS: 4
+  NUM_WORKERS: 8
   SAMPLER: softmax_triplet
 DATASETS:
   NAMES: mars
@@ -122,26 +122,26 @@ MODEL:
   TRIPLET_LOSS_WEIGHT: 1.0
 OUTPUT_DIR: res/vit_rgb
 SOLVER:
-  BASE_LR: 5e-05
+  BASE_LR: 1.5e-05
   BIAS_LR_FACTOR: 2
   CENTER_LOSS_WEIGHT: 0.0005
   CENTER_LR: 0.5
-  CHECKPOINT_PERIOD: 240
+  CHECKPOINT_PERIOD: 30
   COSINE_MARGIN: 0.5
   COSINE_SCALE: 30
-  EVAL_PERIOD: 40
+  EVAL_PERIOD: 10
   GAMMA: 0.1
   IMS_PER_BATCH: 32
   LARGE_FC_LR: False
-  LOG_PERIOD: 100
+  LOG_PERIOD: 30
   MARGIN: 0.3
   MAX_EPOCHS: 240
   MOMENTUM: 0.9
   OPTIMIZER_NAME: Adam
   SEED: 1234
   STEPS: (60, 120, 180)
-  WARMUP_FACTOR: 0.01
-  WARMUP_ITERS: 100
+  WARMUP_FACTOR: 0.005
+  WARMUP_ITERS: 600
   WARMUP_METHOD: linear
   WEIGHT_DECAY: 0.0002
   WEIGHT_DECAY_BIAS: 0.0002
@@ -153,3 +153,197 @@ TEST:
   NECK_FEAT: before
   RE_RANKING: False
   WEIGHT: 
+2025-04-11 23:28:09,211 RGB-E INFO: END LOAD CFG:
+
+2025-04-11 23:28:18,031 RGB-E.train INFO: start training
+2025-04-11 23:28:18,039 RGB-E.train INFO: model: build_transformer(
+  (classifier): Linear(in_features=768, out_features=625, bias=False)
+  (classifier_proj): Linear(in_features=512, out_features=625, bias=False)
+  (bottleneck): BatchNorm1d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (bottleneck_proj): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (image_encoder): VisionTransformer(
+    (conv1): Conv2d(3, 768, kernel_size=(16, 16), stride=(16, 16), bias=False)
+    (ln_pre): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+    (transformer): Transformer(
+      (resblocks): Sequential(
+        (0): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (1): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (2): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (3): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (4): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (5): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (6): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (7): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (8): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (9): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (10): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+        (11): ResidualAttentionBlock(
+          (attn): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=768, out_features=768, bias=True)
+          )
+          (ln_1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): Sequential(
+            (c_fc): Linear(in_features=768, out_features=3072, bias=True)
+            (gelu): QuickGELU()
+            (c_proj): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (ln_2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+      )
+    )
+    (ln_post): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+  )
+)
+2025-04-11 23:28:30,287 RGB-E.train INFO: Epoch[1] Iteration[30/235] Loss: 17.039, ID:12.875, Tri:4.163, Acc: 0.000, Base Lr: 7.50e-08
+2025-04-11 23:28:38,156 RGB-E.train INFO: Epoch[1] Iteration[60/235] Loss: 17.057, ID:12.875, Tri:4.182, Acc: 0.001, Base Lr: 7.50e-08
+2025-04-11 23:28:45,418 RGB-E.train INFO: Epoch[1] Iteration[90/235] Loss: 16.841, ID:12.876, Tri:3.966, Acc: 0.001, Base Lr: 7.50e-08
+2025-04-11 23:28:52,689 RGB-E.train INFO: Epoch[1] Iteration[120/235] Loss: 16.691, ID:12.876, Tri:3.816, Acc: 0.001, Base Lr: 7.50e-08
+2025-04-11 23:28:59,962 RGB-E.train INFO: Epoch[1] Iteration[150/235] Loss: 16.512, ID:12.875, Tri:3.637, Acc: 0.001, Base Lr: 7.50e-08
+2025-04-11 23:29:07,256 RGB-E.train INFO: Epoch[1] Iteration[180/235] Loss: 16.391, ID:12.875, Tri:3.517, Acc: 0.001, Base Lr: 7.50e-08
+2025-04-11 23:29:15,202 RGB-E.train INFO: Epoch[1] Iteration[210/235] Loss: 16.275, ID:12.875, Tri:3.399, Acc: 0.001, Base Lr: 7.50e-08
+2025-04-11 23:29:21,971 RGB-E.train INFO: Epoch 1 done. Time per batch: 0.272[s] Speed: 117.6[samples/s]
+2025-04-11 23:29:34,220 RGB-E.train INFO: Epoch[2] Iteration[30/235] Loss: 15.265, ID:12.876, Tri:2.389, Acc: 0.000, Base Lr: 9.99e-08
+2025-04-11 23:29:41,524 RGB-E.train INFO: Epoch[2] Iteration[60/235] Loss: 15.168, ID:12.876, Tri:2.293, Acc: 0.001, Base Lr: 9.99e-08
+2025-04-11 23:29:48,904 RGB-E.train INFO: Epoch[2] Iteration[90/235] Loss: 14.955, ID:12.874, Tri:2.080, Acc: 0.002, Base Lr: 9.99e-08
+2025-04-11 23:29:56,761 RGB-E.train INFO: Epoch[2] Iteration[120/235] Loss: 14.905, ID:12.874, Tri:2.031, Acc: 0.002, Base Lr: 9.99e-08
+2025-04-11 23:30:04,053 RGB-E.train INFO: Epoch[2] Iteration[150/235] Loss: 14.904, ID:12.874, Tri:2.030, Acc: 0.002, Base Lr: 9.99e-08
+2025-04-11 23:30:11,360 RGB-E.train INFO: Epoch[2] Iteration[180/235] Loss: 14.849, ID:12.874, Tri:1.975, Acc: 0.002, Base Lr: 9.99e-08
+2025-04-11 23:30:18,651 RGB-E.train INFO: Epoch[2] Iteration[210/235] Loss: 14.813, ID:12.874, Tri:1.939, Acc: 0.001, Base Lr: 9.99e-08
+2025-04-11 23:30:25,526 RGB-E.train INFO: Epoch 2 done. Time per batch: 0.270[s] Speed: 118.3[samples/s]
+2025-04-11 23:30:37,818 RGB-E.train INFO: Epoch[3] Iteration[30/235] Loss: 14.163, ID:12.875, Tri:1.288, Acc: 0.000, Base Lr: 1.25e-07
+2025-04-11 23:30:45,110 RGB-E.train INFO: Epoch[3] Iteration[60/235] Loss: 14.245, ID:12.874, Tri:1.371, Acc: 0.001, Base Lr: 1.25e-07
+2025-04-11 23:30:52,395 RGB-E.train INFO: Epoch[3] Iteration[90/235] Loss: 14.217, ID:12.873, Tri:1.343, Acc: 0.001, Base Lr: 1.25e-07
+2025-04-11 23:30:59,689 RGB-E.train INFO: Epoch[3] Iteration[120/235] Loss: 14.242, ID:12.873, Tri:1.369, Acc: 0.001, Base Lr: 1.25e-07
+2025-04-11 23:31:07,334 RGB-E.train INFO: Epoch[3] Iteration[150/235] Loss: 14.205, ID:12.873, Tri:1.332, Acc: 0.001, Base Lr: 1.25e-07
+2025-04-11 23:31:14,887 RGB-E.train INFO: Epoch[3] Iteration[180/235] Loss: 14.165, ID:12.873, Tri:1.292, Acc: 0.001, Base Lr: 1.25e-07
+2025-04-11 23:31:22,174 RGB-E.train INFO: Epoch[3] Iteration[210/235] Loss: 14.133, ID:12.873, Tri:1.260, Acc: 0.001, Base Lr: 1.25e-07
+2025-04-11 23:31:29,005 RGB-E.train INFO: Epoch 3 done. Time per batch: 0.270[s] Speed: 118.5[samples/s]
+2025-04-11 23:34:49,654 RGB-E.train INFO: Epoch[4] Iteration[30/235] Loss: 14.003, ID:12.870, Tri:1.133, Acc: 0.002, Base Lr: 1.50e-07
+2025-04-11 23:34:56,955 RGB-E.train INFO: Epoch[4] Iteration[60/235] Loss: 13.893, ID:12.871, Tri:1.022, Acc: 0.002, Base Lr: 1.50e-07
+2025-04-11 23:35:04,253 RGB-E.train INFO: Epoch[4] Iteration[90/235] Loss: 13.852, ID:12.871, Tri:0.980, Acc: 0.001, Base Lr: 1.50e-07
+2025-04-11 23:35:11,542 RGB-E.train INFO: Epoch[4] Iteration[120/235] Loss: 13.880, ID:12.871, Tri:1.009, Acc: 0.003, Base Lr: 1.50e-07
+2025-04-11 23:35:19,416 RGB-E.train INFO: Epoch[4] Iteration[150/235] Loss: 13.851, ID:12.870, Tri:0.980, Acc: 0.002, Base Lr: 1.50e-07
+2025-04-11 23:35:26,706 RGB-E.train INFO: Epoch[4] Iteration[180/235] Loss: 13.836, ID:12.870, Tri:0.966, Acc: 0.003, Base Lr: 1.50e-07
+2025-04-11 23:35:34,002 RGB-E.train INFO: Epoch[4] Iteration[210/235] Loss: 13.806, ID:12.870, Tri:0.936, Acc: 0.003, Base Lr: 1.50e-07
+2025-04-11 23:35:40,847 RGB-E.train INFO: Epoch 4 done. Time per batch: 1.072[s] Speed: 29.9[samples/s]

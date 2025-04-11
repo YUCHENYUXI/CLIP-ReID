@@ -23,7 +23,7 @@ def do_train(cfg,
     device = "cuda"
     epochs = cfg.SOLVER.MAX_EPOCHS
 
-    logger = logging.getLogger("transreid.train")
+    logger = logging.getLogger("RGB-E.train")
     logger.info('start training')
     _LOCAL_PROCESS_GROUP = None
     if device:
@@ -34,6 +34,8 @@ def do_train(cfg,
 
     loss_meter = AverageMeter()
     acc_meter = AverageMeter()
+    IDlossmeter=AverageMeter()
+    TRILossmeter=AverageMeter()
 
     evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
     scaler = amp.GradScaler()
@@ -49,6 +51,9 @@ def do_train(cfg,
         loss_meter.reset()
         acc_meter.reset()
         evaluator.reset()
+        IDlossmeter.reset()
+        TRILossmeter.reset()
+        
 
 
         model.train()
@@ -74,7 +79,7 @@ def do_train(cfg,
 
             with torch.amp.autocast('cuda',enabled=True):  # 使用混合精度加速
                 score, feat = model(vids, target, cam_label=target_cam, view_label=target_view)
-                print(f"iter: {n_iter}")
+                # print(f"iter: {n_iter}")
                 for i in range(len(score)):
                     score[i]=score[i].view(batch_size,num_frames,-1).mean(dim=1)
                 for i in range(len(feat)):
@@ -82,7 +87,7 @@ def do_train(cfg,
 
                 
                 # 计算损失
-                loss = loss_fn(score, feat, target, target_cam)
+                loss,idloss,triloss = loss_fn(score, feat, target, target_cam)
             #---
 
             scaler.scale(loss).backward()
@@ -102,12 +107,13 @@ def do_train(cfg,
 
             loss_meter.update(loss.item(), vids.shape[0])
             acc_meter.update(acc, 1)
+            IDlossmeter.update(idloss, 1)
+            TRILossmeter.update(triloss, 1)
 
             torch.cuda.synchronize()
-            if (n_iter + 1) % log_period == 0:
-                logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, Acc: {:.3f}, Base Lr: {:.2e}"
-                            .format(epoch, (n_iter + 1), len(train_loader),
-                                    loss_meter.avg, acc_meter.avg, scheduler.get_lr()[0]))
+            if ((n_iter + 1) % log_period) == 0:
+                logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, ID:{:.3f}, Tri:{:.3f}, Acc: {:.3f}, Base Lr: {:.2e}".format(epoch, (n_iter + 1), len(train_loader),
+                                    loss_meter.avg,IDlossmeter.avg,TRILossmeter.avg, acc_meter.avg, scheduler.get_lr()[0]))
 
         scheduler.step()
 
@@ -119,22 +125,23 @@ def do_train(cfg,
             logger.info("Epoch {} done. Time per batch: {:.3f}[s] Speed: {:.1f}[samples/s]"
                     .format(epoch, time_per_batch, train_loader.batch_size / time_per_batch))
 
-        if epoch % checkpoint_period or (epoch) in cfg.SOLVER.STEPS == 0:
+        if (epoch % checkpoint_period ==0) or ((epoch) in cfg.SOLVER.STEPS ):
             torch.save(model.state_dict(),
                         os.path.join(cfg.OUTPUT_DIR, 
                                      cfg.MODEL.NAME + '_{}.pth'.format(epoch)))
 
         if epoch % eval_period == 0 :
             model.eval()
-            for n_iter, (imgs, vid, camid) in enumerate(val_loader):
-                camids = torch.tensor(camid, device=device).clone().detach()
+            for n_iter, (vids, pid, cam_id) in enumerate(val_loader):
+                target_cam = torch.tensor(cam_id, device=device).clone().detach()
                 target_view = None
+                vids = vids.to(device) # pids, target_cam
+                pid = pid.to(device)
                 with torch.no_grad():
-                    imgs = imgs.to(device)
                     if cfg.MODEL.SIE_CAMERA:
-                        camids = camids.to(device)
+                        target_cam = target_cam.to(device)
                     else: 
-                        camids = None
+                        target_cam = None
                     if cfg.MODEL.SIE_VIEW:
                         target_view = target_view.to(device)
                     else: 
@@ -151,10 +158,10 @@ def do_train(cfg,
                         feat[i]=feat[i].view(batch_size,num_frames,-1).mean(dim=1)
                     
                     # 计算损失
-                    loss = loss_fn(score, feat, target, target_cam)
+                    loss,_,_ = loss_fn(score, feat, target, target_cam)
                     #---
                     # feat = model(imgs, cam_label=camids, view_label=target_view)
-                    evaluator.update((feat, vid, camid))
+                    evaluator.update((feat, pid, target_cam))
             
             cmc, mAP, _, _, _, _, _ = evaluator.compute()
             logger.info("Validation Results - Epoch: {}".format(epoch))
@@ -173,7 +180,7 @@ def do_inference(cfg,
                  val_loader,
                  num_query):
     device = "cuda"
-    logger = logging.getLogger("transreid.test")
+    logger = logging.getLogger("RGBE.test")
     logger.info("Enter inferencing")
 
     evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)

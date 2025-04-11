@@ -48,12 +48,13 @@ def init_all():
             config_str = "\n" + cf.read()
             logger.info(config_str)
     logger.info("Running with config:\n{}".format(cfg))
+    logger.info("END LOAD CFG:\n")
 
-    return cfg,args
+    return cfg,args,logger
 
 
 if __name__ == '__main__':
-    cfg ,args= init_all()
+    cfg ,args,logger= init_all()
 
     train_loader ,  val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
     model = make_model(cfg, num_class=num_classes, camera_num=camera_num, view_num = view_num)
