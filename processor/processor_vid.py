@@ -73,12 +73,13 @@ def do_train(cfg,
             target_view = None
 
             #---
-            batch_size, num_frames, channels, height, width = vids.shape  # (32,3,4,256,128)
-
+            batch_size, num_frames, channels, height, width = vids.shape  # (32,4,3,256,128)
+            
             vids=vids.view([-1,channels,height,width]) # (128,3,256,128)
-
+            target_train=torch.stack([target for i in range(num_frames)]).view(num_frames,batch_size)
+            target_train=target_train.permute(1,0).reshape(-1)
             with torch.amp.autocast('cuda',enabled=True):  # 使用混合精度加速
-                score, feat = model(vids, target, cam_label=target_cam, view_label=target_view)
+                score, feat = model(vids, target_train, cam_label=target_cam, view_label=target_view)
                 # print(f"iter: {n_iter}")
                 for i in range(len(score)):
                     score[i]=score[i].view(batch_size,num_frames,-1).mean(dim=1)
@@ -150,8 +151,12 @@ def do_train(cfg,
                     batch_size, num_frames, channels, height, width = vids.shape  # (32,3,4,256,128)
 
                     vids=vids.view([-1,channels,height,width]) # (128,3,256,128)
+                    target_test=torch.stack([pid for i in range(num_frames)]).view(num_frames,batch_size)
+                    target_test=target_test.permute(1,0).reshape(-1)
+                    target = target.to(device)
 
-                    score, feat = model(vids, target, cam_label=target_cam, view_label=target_view)
+                    score, feat = model(vids, target_test, cam_label=target_cam, view_label=target_view)
+                    i = 0
                     for i in range(len(score)):
                         score[i]=score[i].view(batch_size,num_frames,-1).mean(dim=1)
                     for i in range(len(feat)):
