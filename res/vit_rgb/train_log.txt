@@ -1,22 +1,22 @@
-2025-04-11 23:28:09,210 RGB-E INFO: 
+2025-04-11 23:53:26,658 RGB-E INFO: 
 Saving path :
 
 res/vit_rgb
 
 
-2025-04-11 23:28:09,210 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
-2025-04-11 23:28:09,210 RGB-E INFO: 
+2025-04-11 23:53:26,659 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
+2025-04-11 23:53:26,659 RGB-E INFO: 
 Configuration file:
 
  configs/person/vit_base_rgb.yml
 
 
-2025-04-11 23:28:09,211 RGB-E INFO: 
+2025-04-11 23:53:26,659 RGB-E INFO: 
 MODEL:
   NAME: 'ViT-B-16'
   NECK: 'bnneck'
-  ID_LOSS_WEIGHT : 1.0
-  TRIPLET_LOSS_WEIGHT : 1.0
+  ID_LOSS_WEIGHT : 3.0
+  TRIPLET_LOSS_WEIGHT : 0.5
   METRIC_LOSS_TYPE: 'triplet'
   DIST_TRAIN: False
   NO_MARGIN: False
@@ -58,8 +58,8 @@ SOLVER:
   CENTER_LR : 0.5
   CENTER_LOSS_WEIGHT : 0.0005
 
-  WEIGHT_DECAY : 0.0002
-  WEIGHT_DECAY_BIAS : 0.0002
+  WEIGHT_DECAY : 0.0005
+  WEIGHT_DECAY_BIAS : 0.0005
 
   GAMMA : 0.1
   STEPS : (60, 120, 180) #[60, 120, 180]
@@ -91,7 +91,7 @@ DATASETS:
   ROOT_DIR: ('../data')
 OUTPUT_DIR: 'res/vit_rgb'
 
-2025-04-11 23:28:09,211 RGB-E INFO: Running with config:
+2025-04-11 23:53:26,659 RGB-E INFO: Running with config:
 DATALOADER:
   NUM_INSTANCE: 4
   NUM_WORKERS: 8
@@ -109,7 +109,7 @@ MODEL:
   DEVICE_ID: 0
   DIST_TRAIN: False
   I2T_LOSS_WEIGHT: 1.0
-  ID_LOSS_WEIGHT: 1.0
+  ID_LOSS_WEIGHT: 3.0
   IF_LABELSMOOTH: on
   METRIC_LOSS_TYPE: triplet
   NAME: ViT-B-16
@@ -119,7 +119,7 @@ MODEL:
   SIE_COE: 3.0
   SIE_VIEW: False
   STRIDE_SIZE: [16, 16]
-  TRIPLET_LOSS_WEIGHT: 1.0
+  TRIPLET_LOSS_WEIGHT: 0.5
 OUTPUT_DIR: res/vit_rgb
 SOLVER:
   BASE_LR: 1.5e-05
@@ -143,8 +143,8 @@ SOLVER:
   WARMUP_FACTOR: 0.005
   WARMUP_ITERS: 600
   WARMUP_METHOD: linear
-  WEIGHT_DECAY: 0.0002
-  WEIGHT_DECAY_BIAS: 0.0002
+  WEIGHT_DECAY: 0.0005
+  WEIGHT_DECAY_BIAS: 0.0005
 TEST:
   DIST_MAT: dist_mat.npy
   EVAL: True
@@ -153,10 +153,10 @@ TEST:
   NECK_FEAT: before
   RE_RANKING: False
   WEIGHT: 
-2025-04-11 23:28:09,211 RGB-E INFO: END LOAD CFG:
+2025-04-11 23:53:26,660 RGB-E INFO: END LOAD CFG:
 
-2025-04-11 23:28:18,031 RGB-E.train INFO: start training
-2025-04-11 23:28:18,039 RGB-E.train INFO: model: build_transformer(
+2025-04-11 23:53:35,463 RGB-E.train INFO: start training
+2025-04-11 23:53:35,471 RGB-E.train INFO: model: build_transformer(
   (classifier): Linear(in_features=768, out_features=625, bias=False)
   (classifier_proj): Linear(in_features=512, out_features=625, bias=False)
   (bottleneck): BatchNorm1d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -315,35 +315,142 @@ TEST:
     (ln_post): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
   )
 )
-2025-04-11 23:28:30,287 RGB-E.train INFO: Epoch[1] Iteration[30/235] Loss: 17.039, ID:12.875, Tri:4.163, Acc: 0.000, Base Lr: 7.50e-08
-2025-04-11 23:28:38,156 RGB-E.train INFO: Epoch[1] Iteration[60/235] Loss: 17.057, ID:12.875, Tri:4.182, Acc: 0.001, Base Lr: 7.50e-08
-2025-04-11 23:28:45,418 RGB-E.train INFO: Epoch[1] Iteration[90/235] Loss: 16.841, ID:12.876, Tri:3.966, Acc: 0.001, Base Lr: 7.50e-08
-2025-04-11 23:28:52,689 RGB-E.train INFO: Epoch[1] Iteration[120/235] Loss: 16.691, ID:12.876, Tri:3.816, Acc: 0.001, Base Lr: 7.50e-08
-2025-04-11 23:28:59,962 RGB-E.train INFO: Epoch[1] Iteration[150/235] Loss: 16.512, ID:12.875, Tri:3.637, Acc: 0.001, Base Lr: 7.50e-08
-2025-04-11 23:29:07,256 RGB-E.train INFO: Epoch[1] Iteration[180/235] Loss: 16.391, ID:12.875, Tri:3.517, Acc: 0.001, Base Lr: 7.50e-08
-2025-04-11 23:29:15,202 RGB-E.train INFO: Epoch[1] Iteration[210/235] Loss: 16.275, ID:12.875, Tri:3.399, Acc: 0.001, Base Lr: 7.50e-08
-2025-04-11 23:29:21,971 RGB-E.train INFO: Epoch 1 done. Time per batch: 0.272[s] Speed: 117.6[samples/s]
-2025-04-11 23:29:34,220 RGB-E.train INFO: Epoch[2] Iteration[30/235] Loss: 15.265, ID:12.876, Tri:2.389, Acc: 0.000, Base Lr: 9.99e-08
-2025-04-11 23:29:41,524 RGB-E.train INFO: Epoch[2] Iteration[60/235] Loss: 15.168, ID:12.876, Tri:2.293, Acc: 0.001, Base Lr: 9.99e-08
-2025-04-11 23:29:48,904 RGB-E.train INFO: Epoch[2] Iteration[90/235] Loss: 14.955, ID:12.874, Tri:2.080, Acc: 0.002, Base Lr: 9.99e-08
-2025-04-11 23:29:56,761 RGB-E.train INFO: Epoch[2] Iteration[120/235] Loss: 14.905, ID:12.874, Tri:2.031, Acc: 0.002, Base Lr: 9.99e-08
-2025-04-11 23:30:04,053 RGB-E.train INFO: Epoch[2] Iteration[150/235] Loss: 14.904, ID:12.874, Tri:2.030, Acc: 0.002, Base Lr: 9.99e-08
-2025-04-11 23:30:11,360 RGB-E.train INFO: Epoch[2] Iteration[180/235] Loss: 14.849, ID:12.874, Tri:1.975, Acc: 0.002, Base Lr: 9.99e-08
-2025-04-11 23:30:18,651 RGB-E.train INFO: Epoch[2] Iteration[210/235] Loss: 14.813, ID:12.874, Tri:1.939, Acc: 0.001, Base Lr: 9.99e-08
-2025-04-11 23:30:25,526 RGB-E.train INFO: Epoch 2 done. Time per batch: 0.270[s] Speed: 118.3[samples/s]
-2025-04-11 23:30:37,818 RGB-E.train INFO: Epoch[3] Iteration[30/235] Loss: 14.163, ID:12.875, Tri:1.288, Acc: 0.000, Base Lr: 1.25e-07
-2025-04-11 23:30:45,110 RGB-E.train INFO: Epoch[3] Iteration[60/235] Loss: 14.245, ID:12.874, Tri:1.371, Acc: 0.001, Base Lr: 1.25e-07
-2025-04-11 23:30:52,395 RGB-E.train INFO: Epoch[3] Iteration[90/235] Loss: 14.217, ID:12.873, Tri:1.343, Acc: 0.001, Base Lr: 1.25e-07
-2025-04-11 23:30:59,689 RGB-E.train INFO: Epoch[3] Iteration[120/235] Loss: 14.242, ID:12.873, Tri:1.369, Acc: 0.001, Base Lr: 1.25e-07
-2025-04-11 23:31:07,334 RGB-E.train INFO: Epoch[3] Iteration[150/235] Loss: 14.205, ID:12.873, Tri:1.332, Acc: 0.001, Base Lr: 1.25e-07
-2025-04-11 23:31:14,887 RGB-E.train INFO: Epoch[3] Iteration[180/235] Loss: 14.165, ID:12.873, Tri:1.292, Acc: 0.001, Base Lr: 1.25e-07
-2025-04-11 23:31:22,174 RGB-E.train INFO: Epoch[3] Iteration[210/235] Loss: 14.133, ID:12.873, Tri:1.260, Acc: 0.001, Base Lr: 1.25e-07
-2025-04-11 23:31:29,005 RGB-E.train INFO: Epoch 3 done. Time per batch: 0.270[s] Speed: 118.5[samples/s]
-2025-04-11 23:34:49,654 RGB-E.train INFO: Epoch[4] Iteration[30/235] Loss: 14.003, ID:12.870, Tri:1.133, Acc: 0.002, Base Lr: 1.50e-07
-2025-04-11 23:34:56,955 RGB-E.train INFO: Epoch[4] Iteration[60/235] Loss: 13.893, ID:12.871, Tri:1.022, Acc: 0.002, Base Lr: 1.50e-07
-2025-04-11 23:35:04,253 RGB-E.train INFO: Epoch[4] Iteration[90/235] Loss: 13.852, ID:12.871, Tri:0.980, Acc: 0.001, Base Lr: 1.50e-07
-2025-04-11 23:35:11,542 RGB-E.train INFO: Epoch[4] Iteration[120/235] Loss: 13.880, ID:12.871, Tri:1.009, Acc: 0.003, Base Lr: 1.50e-07
-2025-04-11 23:35:19,416 RGB-E.train INFO: Epoch[4] Iteration[150/235] Loss: 13.851, ID:12.870, Tri:0.980, Acc: 0.002, Base Lr: 1.50e-07
-2025-04-11 23:35:26,706 RGB-E.train INFO: Epoch[4] Iteration[180/235] Loss: 13.836, ID:12.870, Tri:0.966, Acc: 0.003, Base Lr: 1.50e-07
-2025-04-11 23:35:34,002 RGB-E.train INFO: Epoch[4] Iteration[210/235] Loss: 13.806, ID:12.870, Tri:0.936, Acc: 0.003, Base Lr: 1.50e-07
-2025-04-11 23:35:40,847 RGB-E.train INFO: Epoch 4 done. Time per batch: 1.072[s] Speed: 29.9[samples/s]
+2025-04-11 23:53:47,347 RGB-E.train INFO: Epoch[1] Iteration[30/235] AVG:Loss: 40.703, ID:12.875, Tri:4.156, Acc: 0.000 | Base Lr: 7.50e-08
+2025-04-11 23:53:47,347 RGB-E.train INFO: 						VAL:Loss: 41.258, ID:12.870, Tri:5.297, Acc: 0.000
+2025-04-11 23:53:54,646 RGB-E.train INFO: Epoch[1] Iteration[60/235] AVG:Loss: 40.712, ID:12.875, Tri:4.172, Acc: 0.001 | Base Lr: 7.50e-08
+2025-04-11 23:53:54,646 RGB-E.train INFO: 						VAL:Loss: 41.454, ID:12.876, Tri:5.653, Acc: 0.000
+2025-04-11 23:54:01,923 RGB-E.train INFO: Epoch[1] Iteration[90/235] AVG:Loss: 40.605, ID:12.876, Tri:3.955, Acc: 0.001 | Base Lr: 7.50e-08
+2025-04-11 23:54:01,923 RGB-E.train INFO: 						VAL:Loss: 40.175, ID:12.870, Tri:3.131, Acc: 0.000
+2025-04-11 23:54:09,179 RGB-E.train INFO: Epoch[1] Iteration[120/235] AVG:Loss: 40.530, ID:12.876, Tri:3.807, Acc: 0.001 | Base Lr: 7.50e-08
+2025-04-11 23:54:09,180 RGB-E.train INFO: 						VAL:Loss: 39.802, ID:12.879, Tri:2.330, Acc: 0.000
+2025-04-11 23:54:17,143 RGB-E.train INFO: Epoch[1] Iteration[150/235] AVG:Loss: 40.440, ID:12.875, Tri:3.631, Acc: 0.001 | Base Lr: 7.50e-08
+2025-04-11 23:54:17,143 RGB-E.train INFO: 						VAL:Loss: 39.928, ID:12.864, Tri:2.673, Acc: 0.000
+2025-04-11 23:54:24,468 RGB-E.train INFO: Epoch[1] Iteration[180/235] AVG:Loss: 40.380, ID:12.875, Tri:3.512, Acc: 0.001 | Base Lr: 7.50e-08
+2025-04-11 23:54:24,468 RGB-E.train INFO: 						VAL:Loss: 40.140, ID:12.868, Tri:3.069, Acc: 0.000
+2025-04-11 23:54:31,764 RGB-E.train INFO: Epoch[1] Iteration[210/235] AVG:Loss: 40.323, ID:12.875, Tri:3.395, Acc: 0.001 | Base Lr: 7.50e-08
+2025-04-11 23:54:31,764 RGB-E.train INFO: 						VAL:Loss: 39.984, ID:12.868, Tri:2.760, Acc: 0.000
+2025-04-11 23:54:38,583 RGB-E.train INFO: Epoch 1 done. Time per batch: 0.269[s] Speed: 119.2[samples/s]
+2025-04-11 23:54:51,136 RGB-E.train INFO: Epoch[2] Iteration[30/235] AVG:Loss: 39.821, ID:12.876, Tri:2.388, Acc: 0.000 | Base Lr: 9.99e-08
+2025-04-11 23:54:51,138 RGB-E.train INFO: 						VAL:Loss: 39.138, ID:12.875, Tri:1.028, Acc: 0.000
+2025-04-11 23:54:58,864 RGB-E.train INFO: Epoch[2] Iteration[60/235] AVG:Loss: 39.772, ID:12.875, Tri:2.292, Acc: 0.001 | Base Lr: 9.99e-08
+2025-04-11 23:54:58,866 RGB-E.train INFO: 						VAL:Loss: 39.009, ID:12.885, Tri:0.708, Acc: 0.000
+2025-04-11 23:55:06,163 RGB-E.train INFO: Epoch[2] Iteration[90/235] AVG:Loss: 39.662, ID:12.874, Tri:2.079, Acc: 0.002 | Base Lr: 9.99e-08
+2025-04-11 23:55:06,164 RGB-E.train INFO: 						VAL:Loss: 39.897, ID:12.872, Tri:2.563, Acc: 0.000
+2025-04-11 23:55:13,467 RGB-E.train INFO: Epoch[2] Iteration[120/235] AVG:Loss: 39.637, ID:12.874, Tri:2.031, Acc: 0.002 | Base Lr: 9.99e-08
+2025-04-11 23:55:13,467 RGB-E.train INFO: 						VAL:Loss: 39.423, ID:12.856, Tri:1.710, Acc: 0.000
+2025-04-11 23:55:20,767 RGB-E.train INFO: Epoch[2] Iteration[150/235] AVG:Loss: 39.637, ID:12.874, Tri:2.029, Acc: 0.002 | Base Lr: 9.99e-08
+2025-04-11 23:55:20,768 RGB-E.train INFO: 						VAL:Loss: 39.376, ID:12.864, Tri:1.568, Acc: 0.000
+2025-04-11 23:55:28,078 RGB-E.train INFO: Epoch[2] Iteration[180/235] AVG:Loss: 39.608, ID:12.873, Tri:1.974, Acc: 0.002 | Base Lr: 9.99e-08
+2025-04-11 23:55:28,078 RGB-E.train INFO: 						VAL:Loss: 39.851, ID:12.869, Tri:2.484, Acc: 0.000
+2025-04-11 23:55:36,049 RGB-E.train INFO: Epoch[2] Iteration[210/235] AVG:Loss: 39.590, ID:12.873, Tri:1.939, Acc: 0.001 | Base Lr: 9.99e-08
+2025-04-11 23:55:36,049 RGB-E.train INFO: 						VAL:Loss: 39.635, ID:12.875, Tri:2.021, Acc: 0.000
+2025-04-11 23:55:42,864 RGB-E.train INFO: Epoch 2 done. Time per batch: 0.274[s] Speed: 117.0[samples/s]
+2025-04-11 23:55:55,143 RGB-E.train INFO: Epoch[3] Iteration[30/235] AVG:Loss: 39.269, ID:12.875, Tri:1.289, Acc: 0.000 | Base Lr: 1.25e-07
+2025-04-11 23:55:55,144 RGB-E.train INFO: 						VAL:Loss: 39.001, ID:12.882, Tri:0.711, Acc: 0.000
+2025-04-11 23:56:02,446 RGB-E.train INFO: Epoch[3] Iteration[60/235] AVG:Loss: 39.307, ID:12.874, Tri:1.371, Acc: 0.001 | Base Lr: 1.25e-07
+2025-04-11 23:56:02,446 RGB-E.train INFO: 						VAL:Loss: 38.967, ID:12.873, Tri:0.694, Acc: 0.000
+2025-04-11 23:56:10,066 RGB-E.train INFO: Epoch[3] Iteration[90/235] AVG:Loss: 39.292, ID:12.873, Tri:1.345, Acc: 0.001 | Base Lr: 1.25e-07
+2025-04-11 23:56:10,067 RGB-E.train INFO: 						VAL:Loss: 38.879, ID:12.866, Tri:0.563, Acc: 0.000
+2025-04-11 23:56:17,676 RGB-E.train INFO: Epoch[3] Iteration[120/235] AVG:Loss: 39.304, ID:12.873, Tri:1.370, Acc: 0.001 | Base Lr: 1.25e-07
+2025-04-11 23:56:17,677 RGB-E.train INFO: 						VAL:Loss: 39.124, ID:12.871, Tri:1.024, Acc: 0.000
+2025-04-11 23:56:24,972 RGB-E.train INFO: Epoch[3] Iteration[150/235] AVG:Loss: 39.285, ID:12.873, Tri:1.333, Acc: 0.001 | Base Lr: 1.25e-07
+2025-04-11 23:56:24,972 RGB-E.train INFO: 						VAL:Loss: 39.061, ID:12.878, Tri:0.855, Acc: 0.000
+2025-04-11 23:56:32,275 RGB-E.train INFO: Epoch[3] Iteration[180/235] AVG:Loss: 39.264, ID:12.872, Tri:1.293, Acc: 0.001 | Base Lr: 1.25e-07
+2025-04-11 23:56:32,275 RGB-E.train INFO: 						VAL:Loss: 38.789, ID:12.866, Tri:0.380, Acc: 0.000
+2025-04-11 23:56:39,576 RGB-E.train INFO: Epoch[3] Iteration[210/235] AVG:Loss: 39.247, ID:12.872, Tri:1.261, Acc: 0.001 | Base Lr: 1.25e-07
+2025-04-11 23:56:39,576 RGB-E.train INFO: 						VAL:Loss: 39.099, ID:12.864, Tri:1.012, Acc: 0.000
+2025-04-11 23:56:46,432 RGB-E.train INFO: Epoch 3 done. Time per batch: 0.270[s] Speed: 118.3[samples/s]
+2025-04-11 23:56:58,990 RGB-E.train INFO: Epoch[4] Iteration[30/235] AVG:Loss: 39.176, ID:12.870, Tri:1.135, Acc: 0.002 | Base Lr: 1.50e-07
+2025-04-11 23:56:58,990 RGB-E.train INFO: 						VAL:Loss: 39.274, ID:12.852, Tri:1.436, Acc: 0.000
+2025-04-11 23:57:06,276 RGB-E.train INFO: Epoch[4] Iteration[60/235] AVG:Loss: 39.123, ID:12.871, Tri:1.023, Acc: 0.002 | Base Lr: 1.50e-07
+2025-04-11 23:57:06,276 RGB-E.train INFO: 						VAL:Loss: 39.289, ID:12.862, Tri:1.409, Acc: 0.000
+2025-04-11 23:57:13,577 RGB-E.train INFO: Epoch[4] Iteration[90/235] AVG:Loss: 39.102, ID:12.871, Tri:0.980, Acc: 0.001 | Base Lr: 1.50e-07
+2025-04-11 23:57:13,577 RGB-E.train INFO: 						VAL:Loss: 39.110, ID:12.879, Tri:0.943, Acc: 0.000
+2025-04-11 23:57:20,856 RGB-E.train INFO: Epoch[4] Iteration[120/235] AVG:Loss: 39.114, ID:12.870, Tri:1.009, Acc: 0.003 | Base Lr: 1.50e-07
+2025-04-11 23:57:20,857 RGB-E.train INFO: 						VAL:Loss: 39.531, ID:12.869, Tri:1.848, Acc: 0.000
+2025-04-11 23:57:28,761 RGB-E.train INFO: Epoch[4] Iteration[150/235] AVG:Loss: 39.099, ID:12.869, Tri:0.981, Acc: 0.002 | Base Lr: 1.50e-07
+2025-04-11 23:57:28,762 RGB-E.train INFO: 						VAL:Loss: 39.261, ID:12.882, Tri:1.229, Acc: 0.000
+2025-04-11 23:57:36,070 RGB-E.train INFO: Epoch[4] Iteration[180/235] AVG:Loss: 39.091, ID:12.869, Tri:0.967, Acc: 0.003 | Base Lr: 1.50e-07
+2025-04-11 23:57:36,070 RGB-E.train INFO: 						VAL:Loss: 38.938, ID:12.866, Tri:0.679, Acc: 0.000
+2025-04-11 23:57:43,357 RGB-E.train INFO: Epoch[4] Iteration[210/235] AVG:Loss: 39.077, ID:12.869, Tri:0.937, Acc: 0.003 | Base Lr: 1.50e-07
+2025-04-11 23:57:43,358 RGB-E.train INFO: 						VAL:Loss: 38.893, ID:12.878, Tri:0.515, Acc: 0.000
+2025-04-11 23:57:50,200 RGB-E.train INFO: Epoch 4 done. Time per batch: 0.271[s] Speed: 117.9[samples/s]
+2025-04-11 23:58:02,799 RGB-E.train INFO: Epoch[5] Iteration[30/235] AVG:Loss: 38.981, ID:12.866, Tri:0.768, Acc: 0.003 | Base Lr: 1.75e-07
+2025-04-11 23:58:02,799 RGB-E.train INFO: 						VAL:Loss: 39.334, ID:12.863, Tri:1.488, Acc: 0.000
+2025-04-11 23:58:10,659 RGB-E.train INFO: Epoch[5] Iteration[60/235] AVG:Loss: 39.047, ID:12.867, Tri:0.890, Acc: 0.003 | Base Lr: 1.75e-07
+2025-04-11 23:58:10,659 RGB-E.train INFO: 						VAL:Loss: 38.691, ID:12.866, Tri:0.183, Acc: 0.000
+2025-04-11 23:58:17,962 RGB-E.train INFO: Epoch[5] Iteration[90/235] AVG:Loss: 39.028, ID:12.867, Tri:0.857, Acc: 0.003 | Base Lr: 1.75e-07
+2025-04-11 23:58:17,962 RGB-E.train INFO: 						VAL:Loss: 39.155, ID:12.866, Tri:1.113, Acc: 0.000
+2025-04-11 23:58:25,263 RGB-E.train INFO: Epoch[5] Iteration[120/235] AVG:Loss: 39.005, ID:12.867, Tri:0.811, Acc: 0.004 | Base Lr: 1.75e-07
+2025-04-11 23:58:25,263 RGB-E.train INFO: 						VAL:Loss: 38.837, ID:12.867, Tri:0.473, Acc: 0.000
+2025-04-11 23:58:32,565 RGB-E.train INFO: Epoch[5] Iteration[150/235] AVG:Loss: 38.980, ID:12.866, Tri:0.762, Acc: 0.003 | Base Lr: 1.75e-07
+2025-04-11 23:58:32,565 RGB-E.train INFO: 						VAL:Loss: 38.743, ID:12.870, Tri:0.268, Acc: 0.000
+2025-04-11 23:58:39,873 RGB-E.train INFO: Epoch[5] Iteration[180/235] AVG:Loss: 38.975, ID:12.866, Tri:0.756, Acc: 0.003 | Base Lr: 1.75e-07
+2025-04-11 23:58:39,873 RGB-E.train INFO: 						VAL:Loss: 39.124, ID:12.865, Tri:1.056, Acc: 0.000
+2025-04-11 23:58:47,888 RGB-E.train INFO: Epoch[5] Iteration[210/235] AVG:Loss: 38.967, ID:12.866, Tri:0.740, Acc: 0.004 | Base Lr: 1.75e-07
+2025-04-11 23:58:47,888 RGB-E.train INFO: 						VAL:Loss: 39.529, ID:12.868, Tri:1.850, Acc: 0.000
+2025-04-11 23:58:54,737 RGB-E.train INFO: Epoch 5 done. Time per batch: 0.275[s] Speed: 116.5[samples/s]
+2025-04-11 23:59:07,225 RGB-E.train INFO: Epoch[6] Iteration[30/235] AVG:Loss: 38.859, ID:12.862, Tri:0.549, Acc: 0.000 | Base Lr: 1.99e-07
+2025-04-11 23:59:07,225 RGB-E.train INFO: 						VAL:Loss: 38.824, ID:12.847, Tri:0.565, Acc: 0.000
+2025-04-11 23:59:14,505 RGB-E.train INFO: Epoch[6] Iteration[60/235] AVG:Loss: 38.876, ID:12.863, Tri:0.574, Acc: 0.002 | Base Lr: 1.99e-07
+2025-04-11 23:59:14,506 RGB-E.train INFO: 						VAL:Loss: 39.428, ID:12.864, Tri:1.670, Acc: 0.000
+2025-04-11 23:59:22,046 RGB-E.train INFO: Epoch[6] Iteration[90/235] AVG:Loss: 38.876, ID:12.863, Tri:0.572, Acc: 0.001 | Base Lr: 1.99e-07
+2025-04-11 23:59:22,047 RGB-E.train INFO: 						VAL:Loss: 38.706, ID:12.867, Tri:0.213, Acc: 0.000
+2025-04-11 23:59:29,714 RGB-E.train INFO: Epoch[6] Iteration[120/235] AVG:Loss: 38.883, ID:12.863, Tri:0.587, Acc: 0.001 | Base Lr: 1.99e-07
+2025-04-11 23:59:29,715 RGB-E.train INFO: 						VAL:Loss: 39.020, ID:12.857, Tri:0.898, Acc: 0.000
+2025-04-11 23:59:37,022 RGB-E.train INFO: Epoch[6] Iteration[150/235] AVG:Loss: 38.889, ID:12.862, Tri:0.605, Acc: 0.002 | Base Lr: 1.99e-07
+2025-04-11 23:59:37,022 RGB-E.train INFO: 						VAL:Loss: 39.008, ID:12.852, Tri:0.903, Acc: 0.000
+2025-04-11 23:59:44,327 RGB-E.train INFO: Epoch[6] Iteration[180/235] AVG:Loss: 38.882, ID:12.862, Tri:0.590, Acc: 0.002 | Base Lr: 1.99e-07
+2025-04-11 23:59:44,327 RGB-E.train INFO: 						VAL:Loss: 38.812, ID:12.870, Tri:0.403, Acc: 0.000
+2025-04-11 23:59:51,626 RGB-E.train INFO: Epoch[6] Iteration[210/235] AVG:Loss: 38.876, ID:12.862, Tri:0.581, Acc: 0.003 | Base Lr: 1.99e-07
+2025-04-11 23:59:51,626 RGB-E.train INFO: 						VAL:Loss: 39.197, ID:12.844, Tri:1.331, Acc: 0.031
+2025-04-11 23:59:58,474 RGB-E.train INFO: Epoch 6 done. Time per batch: 0.271[s] Speed: 118.0[samples/s]
+2025-04-12 00:00:10,715 RGB-E.train INFO: Epoch[7] Iteration[30/235] AVG:Loss: 38.757, ID:12.854, Tri:0.387, Acc: 0.006 | Base Lr: 2.24e-07
+2025-04-12 00:00:10,716 RGB-E.train INFO: 						VAL:Loss: 38.707, ID:12.843, Tri:0.356, Acc: 0.000
+2025-04-12 00:00:18,026 RGB-E.train INFO: Epoch[7] Iteration[60/235] AVG:Loss: 38.811, ID:12.855, Tri:0.492, Acc: 0.010 | Base Lr: 2.24e-07
+2025-04-12 00:00:18,026 RGB-E.train INFO: 						VAL:Loss: 38.638, ID:12.866, Tri:0.081, Acc: 0.031
+2025-04-12 00:00:25,323 RGB-E.train INFO: Epoch[7] Iteration[90/235] AVG:Loss: 38.814, ID:12.856, Tri:0.490, Acc: 0.008 | Base Lr: 2.24e-07
+2025-04-12 00:00:25,323 RGB-E.train INFO: 						VAL:Loss: 39.526, ID:12.859, Tri:1.901, Acc: 0.000
+2025-04-12 00:00:32,627 RGB-E.train INFO: Epoch[7] Iteration[120/235] AVG:Loss: 38.815, ID:12.856, Tri:0.492, Acc: 0.008 | Base Lr: 2.24e-07
+2025-04-12 00:00:32,627 RGB-E.train INFO: 						VAL:Loss: 38.700, ID:12.852, Tri:0.289, Acc: 0.000
+2025-04-12 00:00:40,377 RGB-E.train INFO: Epoch[7] Iteration[150/235] AVG:Loss: 38.820, ID:12.856, Tri:0.504, Acc: 0.009 | Base Lr: 2.24e-07
+2025-04-12 00:00:40,377 RGB-E.train INFO: 						VAL:Loss: 38.703, ID:12.849, Tri:0.313, Acc: 0.000
+2025-04-12 00:00:47,777 RGB-E.train INFO: Epoch[7] Iteration[180/235] AVG:Loss: 38.822, ID:12.856, Tri:0.508, Acc: 0.009 | Base Lr: 2.24e-07
+2025-04-12 00:00:47,777 RGB-E.train INFO: 						VAL:Loss: 38.921, ID:12.856, Tri:0.706, Acc: 0.000
+2025-04-12 00:00:55,044 RGB-E.train INFO: Epoch[7] Iteration[210/235] AVG:Loss: 38.804, ID:12.856, Tri:0.474, Acc: 0.008 | Base Lr: 2.24e-07
+2025-04-12 00:00:55,045 RGB-E.train INFO: 						VAL:Loss: 38.644, ID:12.858, Tri:0.136, Acc: 0.000
+2025-04-12 00:01:01,750 RGB-E.train INFO: Epoch 7 done. Time per batch: 0.269[s] Speed: 118.8[samples/s]
+2025-04-12 00:01:13,994 RGB-E.train INFO: Epoch[8] Iteration[30/235] AVG:Loss: 38.732, ID:12.851, Tri:0.359, Acc: 0.015 | Base Lr: 2.49e-07
+2025-04-12 00:01:13,995 RGB-E.train INFO: 						VAL:Loss: 38.580, ID:12.853, Tri:0.045, Acc: 0.031
+2025-04-12 00:01:21,955 RGB-E.train INFO: Epoch[8] Iteration[60/235] AVG:Loss: 38.754, ID:12.850, Tri:0.409, Acc: 0.011 | Base Lr: 2.49e-07
+2025-04-12 00:01:21,956 RGB-E.train INFO: 						VAL:Loss: 38.895, ID:12.862, Tri:0.619, Acc: 0.000
+2025-04-12 00:01:29,267 RGB-E.train INFO: Epoch[8] Iteration[90/235] AVG:Loss: 38.740, ID:12.849, Tri:0.385, Acc: 0.013 | Base Lr: 2.49e-07
+2025-04-12 00:01:29,267 RGB-E.train INFO: 						VAL:Loss: 38.750, ID:12.839, Tri:0.468, Acc: 0.031
+2025-04-12 00:01:36,552 RGB-E.train INFO: Epoch[8] Iteration[120/235] AVG:Loss: 38.759, ID:12.850, Tri:0.419, Acc: 0.013 | Base Lr: 2.49e-07
+2025-04-12 00:01:36,552 RGB-E.train INFO: 						VAL:Loss: 38.612, ID:12.844, Tri:0.162, Acc: 0.000
+2025-04-12 00:01:43,845 RGB-E.train INFO: Epoch[8] Iteration[150/235] AVG:Loss: 38.751, ID:12.851, Tri:0.398, Acc: 0.011 | Base Lr: 2.49e-07
+2025-04-12 00:01:43,846 RGB-E.train INFO: 						VAL:Loss: 38.622, ID:12.847, Tri:0.163, Acc: 0.000
+2025-04-12 00:01:51,148 RGB-E.train INFO: Epoch[8] Iteration[180/235] AVG:Loss: 38.748, ID:12.851, Tri:0.391, Acc: 0.013 | Base Lr: 2.49e-07
+2025-04-12 00:01:51,149 RGB-E.train INFO: 						VAL:Loss: 38.770, ID:12.861, Tri:0.376, Acc: 0.062
+2025-04-12 00:01:59,097 RGB-E.train INFO: Epoch[8] Iteration[210/235] AVG:Loss: 38.750, ID:12.850, Tri:0.398, Acc: 0.015 | Base Lr: 2.49e-07
+2025-04-12 00:01:59,097 RGB-E.train INFO: 						VAL:Loss: 38.651, ID:12.847, Tri:0.220, Acc: 0.000
+2025-04-12 00:02:05,886 RGB-E.train INFO: Epoch 8 done. Time per batch: 0.273[s] Speed: 117.3[samples/s]
+2025-04-12 00:02:18,379 RGB-E.train INFO: Epoch[9] Iteration[30/235] AVG:Loss: 38.692, ID:12.847, Tri:0.301, Acc: 0.028 | Base Lr: 2.74e-07
+2025-04-12 00:02:18,379 RGB-E.train INFO: 						VAL:Loss: 38.917, ID:12.834, Tri:0.828, Acc: 0.156
+2025-04-12 00:02:25,670 RGB-E.train INFO: Epoch[9] Iteration[60/235] AVG:Loss: 38.684, ID:12.847, Tri:0.286, Acc: 0.027 | Base Lr: 2.74e-07
+2025-04-12 00:02:25,670 RGB-E.train INFO: 						VAL:Loss: 38.740, ID:12.855, Tri:0.349, Acc: 0.000
+2025-04-12 00:02:33,065 RGB-E.train INFO: Epoch[9] Iteration[90/235] AVG:Loss: 38.697, ID:12.845, Tri:0.323, Acc: 0.030 | Base Lr: 2.74e-07
+2025-04-12 00:02:33,066 RGB-E.train INFO: 						VAL:Loss: 39.071, ID:12.821, Tri:1.218, Acc: 0.125
+2025-04-12 00:02:40,913 RGB-E.train INFO: Epoch[9] Iteration[120/235] AVG:Loss: 38.696, ID:12.844, Tri:0.326, Acc: 0.034 | Base Lr: 2.74e-07
+2025-04-12 00:02:40,914 RGB-E.train INFO: 						VAL:Loss: 38.983, ID:12.865, Tri:0.776, Acc: 0.000
+2025-04-12 00:02:48,205 RGB-E.train INFO: Epoch[9] Iteration[150/235] AVG:Loss: 38.699, ID:12.844, Tri:0.332, Acc: 0.035 | Base Lr: 2.74e-07
+2025-04-12 00:02:48,206 RGB-E.train INFO: 						VAL:Loss: 38.474, ID:12.823, Tri:0.013, Acc: 0.094
+2025-04-12 00:02:55,508 RGB-E.train INFO: Epoch[9] Iteration[180/235] AVG:Loss: 38.703, ID:12.844, Tri:0.340, Acc: 0.036 | Base Lr: 2.74e-07
+2025-04-12 00:02:55,508 RGB-E.train INFO: 						VAL:Loss: 38.527, ID:12.829, Tri:0.080, Acc: 0.188
+2025-04-12 00:03:02,810 RGB-E.train INFO: Epoch[9] Iteration[210/235] AVG:Loss: 38.707, ID:12.844, Tri:0.352, Acc: 0.036 | Base Lr: 2.74e-07
+2025-04-12 00:03:02,810 RGB-E.train INFO: 						VAL:Loss: 38.478, ID:12.825, Tri:0.005, Acc: 0.031
+2025-04-12 00:03:09,652 RGB-E.train INFO: Epoch 9 done. Time per batch: 0.271[s] Speed: 117.9[samples/s]
+2025-04-12 00:03:21,895 RGB-E.train INFO: Epoch[10] Iteration[30/235] AVG:Loss: 38.713, ID:12.839, Tri:0.393, Acc: 0.053 | Base Lr: 2.99e-07
+2025-04-12 00:03:21,896 RGB-E.train INFO: 						VAL:Loss: 38.557, ID:12.834, Tri:0.109, Acc: 0.094
+2025-04-12 00:03:29,169 RGB-E.train INFO: Epoch[10] Iteration[60/235] AVG:Loss: 38.690, ID:12.837, Tri:0.356, Acc: 0.061 | Base Lr: 2.99e-07
+2025-04-12 00:03:29,170 RGB-E.train INFO: 						VAL:Loss: 38.657, ID:12.847, Tri:0.233, Acc: 0.031

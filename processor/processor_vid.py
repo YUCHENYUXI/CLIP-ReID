@@ -112,9 +112,9 @@ def do_train(cfg,
 
             torch.cuda.synchronize()
             if ((n_iter + 1) % log_period) == 0:
-                logger.info("Epoch[{}] Iteration[{}/{}] Loss: {:.3f}, ID:{:.3f}, Tri:{:.3f}, Acc: {:.3f}, Base Lr: {:.2e}".format(epoch, (n_iter + 1), len(train_loader),
-                                    loss_meter.avg,IDlossmeter.avg,TRILossmeter.avg, acc_meter.avg, scheduler.get_lr()[0]))
-
+                logger.info("Epoch[{}] Iteration[{}/{}] AVG - Loss: {:.3f}, ID:{:.3f}, Tri:{:.3f}, Acc: {:.3f} | Base Lr: {:.2e} | VAL - Loss: {:.3f}, ID:{:.3f}, Tri:{:.3f}, Acc: {:.3f}".format(epoch, (n_iter + 1), len(train_loader),
+                                    loss_meter.avg,IDlossmeter.avg,TRILossmeter.avg, acc_meter.avg, scheduler.get_lr()[0],loss_meter.val,IDlossmeter.val,TRILossmeter.val, acc_meter.val))
+ 
         scheduler.step()
 
         end_time = time.time()
