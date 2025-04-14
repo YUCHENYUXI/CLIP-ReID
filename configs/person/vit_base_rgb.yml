@@ -48,7 +48,7 @@ SOLVER:
   WEIGHT_DECAY_BIAS : 0.0005
 
   GAMMA : 0.1
-  STEPS : (30, 60, 120, 180) #[60, 120, 180]
+  STEPS : (60, 120, 180) #[60, 120, 180]
   WARMUP_FACTOR : 0.005
 
   WARMUP_ITERS : 600
@@ -75,4 +75,4 @@ TEST:
 DATASETS:
   NAMES: ('mars')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/vit_rgb'
+OUTPUT_DIR: 'res/vit_rgb_lrD3'
