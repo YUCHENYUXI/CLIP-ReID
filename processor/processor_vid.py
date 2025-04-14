@@ -5,6 +5,9 @@ import torch.nn as nn
 from utils.meter import AverageMeter
 from utils.metrics import R1_mAP_eval
 from torch import amp
+import time
+from datetime import timedelta
+import math
 def do_train(cfg,
              model,
              center_criterion,
@@ -15,16 +18,6 @@ def do_train(cfg,
              scheduler,
              loss_fn,
              num_query, local_rank):
-    import logging
-    import os
-    import torch
-    import torch.nn as nn
-    from utils.meter import AverageMeter
-    from utils.metrics import R1_mAP_eval
-    from torch import amp
-    import time
-    from datetime import timedelta
-    import math
 
     log_period = cfg.SOLVER.LOG_PERIOD
     checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
