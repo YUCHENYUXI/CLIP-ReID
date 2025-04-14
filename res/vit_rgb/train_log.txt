@@ -1,17 +1,17 @@
-2025-04-12 00:31:50,489 RGB-E INFO: 
+2025-04-14 10:42:29,077 RGB-E INFO: 
 Saving path :
 
 res/vit_rgb
 
 
-2025-04-12 00:31:50,490 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
-2025-04-12 00:31:50,490 RGB-E INFO: 
+2025-04-14 10:42:29,078 RGB-E INFO: Namespace(config_file='configs/person/vit_base_rgb.yml', local_rank=0, opts=[])
+2025-04-14 10:42:29,079 RGB-E INFO: 
 Configuration file:
 
  configs/person/vit_base_rgb.yml
 
 
-2025-04-12 00:31:50,490 RGB-E INFO: 
+2025-04-14 10:42:29,079 RGB-E INFO: 
 MODEL:
   NAME: 'ViT-B-16'
   NECK: 'bnneck'
@@ -42,7 +42,7 @@ INPUT:
   # PIXEL_STD: [0.5, 0.5, 0.5]
 
 DATALOADER:
-  NUM_WORKERS: 8
+  NUM_WORKERS: 4
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
 
@@ -91,10 +91,10 @@ DATASETS:
   ROOT_DIR: ('../data')
 OUTPUT_DIR: 'res/vit_rgb'
 
-2025-04-12 00:31:50,490 RGB-E INFO: Running with config:
+2025-04-14 10:42:29,080 RGB-E INFO: Running with config:
 DATALOADER:
   NUM_INSTANCE: 4
-  NUM_WORKERS: 8
+  NUM_WORKERS: 4
   SAMPLER: softmax_triplet
 DATASETS:
   NAMES: mars
@@ -153,10 +153,10 @@ TEST:
   NECK_FEAT: before
   RE_RANKING: False
   WEIGHT: 
-2025-04-12 00:31:50,490 RGB-E INFO: END LOAD CFG:
+2025-04-14 10:42:29,081 RGB-E INFO: END LOAD CFG:
 
-2025-04-12 00:31:59,303 RGB-E.train INFO: start training
-2025-04-12 00:31:59,311 RGB-E.train INFO: model: build_transformer(
+2025-04-14 10:42:40,626 RGB-E.train INFO: start training
+2025-04-14 10:42:40,635 RGB-E.train INFO: model: build_transformer(
   (classifier): Linear(in_features=768, out_features=625, bias=False)
   (classifier_proj): Linear(in_features=512, out_features=625, bias=False)
   (bottleneck): BatchNorm1d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -315,7 +315,4 @@ TEST:
     (ln_post): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
   )
 )
-2025-04-12 00:32:13,784 RGB-E.train INFO: Epoch[1] Iteration[40/235] AVG - Loss: 53.140, ID:12.876, Tri:3.275, Acc: 0.002 | Base Lr: 5.00e-07 | VAL - Loss: 52.413, ID:12.878, Tri:1.804, Acc: 0.000
-2025-04-12 00:32:23,491 RGB-E.train INFO: Epoch[1] Iteration[80/235] AVG - Loss: 52.775, ID:12.875, Tri:2.550, Acc: 0.002 | Base Lr: 5.00e-07 | VAL - Loss: 52.426, ID:12.874, Tri:1.858, Acc: 0.000
-2025-04-12 00:32:33,200 RGB-E.train INFO: Epoch[1] Iteration[120/235] AVG - Loss: 52.553, ID:12.874, Tri:2.112, Acc: 0.002 | Base Lr: 5.00e-07 | VAL - Loss: 51.707, ID:12.877, Tri:0.399, Acc: 0.000
-2025-04-12 00:32:43,264 RGB-E.train INFO: Epoch[1] Iteration[160/235] AVG - Loss: 52.404, ID:12.873, Tri:1.823, Acc: 0.002 | Base Lr: 5.00e-07 | VAL - Loss: 51.822, ID:12.865, Tri:0.727, Acc: 0.031
+2025-04-14 10:42:40,640 RGB-E.train INFO: Epoch 1 done. Time per batch: 0.003[s] Speed: 10668.3[samples/s]

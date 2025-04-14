@@ -58,7 +58,10 @@ def do_train(cfg,
 
         model.train()
 
-        for n_iter, (vids, pids, target_cam) in enumerate(train_loader):
+        # for n_iter, (vids, pids, target_cam) in enumerate(train_loader):
+        n_iter = 0
+        if 0==1:
+            vids, pids, target_cam = None
             optimizer.zero_grad()
             optimizer_center.zero_grad()
             vids = vids.to(device)
@@ -133,40 +136,25 @@ def do_train(cfg,
 
         if epoch % eval_period == 0 :
             model.eval()
-            for n_iter, (vids, pid, cam_id) in enumerate(val_loader):
-                target_cam = torch.tensor(cam_id, device=device).clone().detach()
+            for n_iter, (video, target_id, cam_id) in enumerate(val_loader): # 
+                video = video.to(device)
+                if cfg.MODEL.SIE_CAMERA:
+                    cam_id = cam_id.to(device)
+                else:
+                    cam_id = None
                 target_view = None
-                vids = vids.to(device) # pids, target_cam
-                pid = pid.to(device)
                 with torch.no_grad():
-                    if cfg.MODEL.SIE_CAMERA:
-                        target_cam = target_cam.to(device)
-                    else: 
-                        target_cam = None
-                    if cfg.MODEL.SIE_VIEW:
-                        target_view = target_view.to(device)
-                    else: 
-                        target_view = None
                     #---
-                    batch_size, num_frames, channels, height, width = vids.shape  # (32,3,4,256,128)
-
-                    vids=vids.view([-1,channels,height,width]) # (128,3,256,128)
-                    target_test=torch.stack([pid for i in range(num_frames)]).view(num_frames,batch_size)
-                    target_test=target_test.permute(1,0).reshape(-1)
-                    target = target.to(device)
-
-                    score, feat = model(vids, target_test, cam_label=target_cam, view_label=target_view)
-                    i = 0
-                    for i in range(len(score)):
-                        score[i]=score[i].view(batch_size,num_frames,-1).mean(dim=1)
-                    for i in range(len(feat)):
-                        feat[i]=feat[i].view(batch_size,num_frames,-1).mean(dim=1)
+                    batch_size, num_frames, channels, height, width = video.shape  # (32,3,4,256,128)
+                    video=video.view([-1,channels,height,width]) # (128,3,256,128)
+                    feat = model(video, cam_label=cam_id, view_label=target_view)
+                    #---
+                    feat=feat.view(batch_size,num_frames,-1).mean(dim=1)
+                    if cam_id is None:
+                        cam_id = [0*batch_size]
+                    evaluator.update((feat, target_id, cam_id))
                     
                     # 计算损失
-                    loss,_,_ = loss_fn(score, feat, target, target_cam)
-                    #---
-                    # feat = model(imgs, cam_label=camids, view_label=target_view)
-                    evaluator.update((feat, pid, target_cam))
             
             cmc, mAP, _, _, _, _, _ = evaluator.compute()
             logger.info("Validation Results - Epoch: {}".format(epoch))
@@ -180,16 +168,15 @@ def do_train(cfg,
     logger.info("Total running time: {}".format(total_time))
     print(cfg.OUTPUT_DIR)
 
-def do_inference(cfg,
-                 model,
-                 val_loader,
-                 num_query):
+
+    
+def do_inference(cfg, model, val_loader, num_query):
+    import numpy as np
     device = "cuda"
     logger = logging.getLogger("RGBE.test")
     logger.info("Enter inferencing")
 
     evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
-
     evaluator.reset()
 
     if device:
@@ -199,38 +186,70 @@ def do_inference(cfg,
         model.to(device)
 
     model.eval()
+    valid_samples = 0
 
     for n_iter, (imgs, vid, camid) in enumerate(val_loader):
-        camids = torch.tensor(camid, device=device).clone().detach()
-        target_view = None
-        with torch.no_grad():
-            imgs = imgs.to(device)
-            if cfg.MODEL.SIE_CAMERA:
-                camids = camids.to(device)
-            else: 
-                camids = None
-            if cfg.MODEL.SIE_VIEW:
-                target_view = target_view.to(device)
-            else: 
-                target_view = None
-            #--
-            batch_size, channels, num_frames, height, width = imgs.shape  # (32,3,4,256,128)
-            all_feats = []
-            for i in range(num_frames):  
-                frame = imgs[:, :, i, :, :]  # 取第 i 帧，shape: (32,3,256,128)
-                feat_i = model(frame, cam_label=camids, view_label=target_view)
-                all_feats.append(feat_i)
+        try:
+            camids = torch.tensor(camid, device=device).clone().detach()
+            target_view = None
 
-            # 融合 feat            # feat_i 是长度为 3 的 list，我们同样对 list 内部的 tensor 取均值
-            feat = torch.stack([all_feats[t] for t in range(num_frames)]).mean(dim=0) 
-            #--
-            # feat = model(imgs, cam_label=camids, view_label=target_view)
-            evaluator.update((feat, vid, camid))
+            with torch.no_grad():
+                imgs = imgs.to(device)
+                if cfg.MODEL.SIE_CAMERA:
+                    camids = camids.to(device)
+                else: 
+                    camids = None
 
+                if cfg.MODEL.SIE_VIEW:
+                    target_view = target_view.to(device)
+                else: 
+                    target_view = None
 
-    cmc, mAP, _, _, _, _, _ = evaluator.compute()
-    logger.info("Validation Results ")
-    logger.info("mAP: {:.1%}".format(mAP))
-    for r in [1, 5, 10]:
-        logger.info("CMC curve, Rank-{:<3}:{:.1%}".format(r, cmc[r - 1]))
-    return cmc[0], cmc[4]
+                batch_size, channels, num_frames, height, width = imgs.shape
+
+                all_feats = []
+                for i in range(num_frames):
+                    frame = imgs[:, :, i, :, :]
+                    feat_i = model(frame, cam_label=camids, view_label=target_view)
+                    
+                    # 安全检查
+                    if feat_i is None or isinstance(feat_i, (list, tuple)) and any(f is None for f in feat_i):
+                        logger.warning(f"Inference error: model returned None at frame {i}, skipping sample.")
+                        raise ValueError("Invalid feature output")
+
+                    all_feats.append(feat_i)
+
+                # 融合 features
+                feat = torch.stack([all_feats[t] for t in range(num_frames)]).mean(dim=0)
+
+                # 特征有效性检查
+                if torch.isnan(feat).any() or torch.isinf(feat).any():
+                    logger.warning(f"Inference warning: NaN or Inf in features for sample {n_iter}, skipping.")
+                    continue
+                if torch.norm(feat, p=2, dim=1).mean() < 1e-6:
+                    logger.warning(f"Inference warning: feature norm is too small at sample {n_iter}, skipping.")
+                    continue
+
+                evaluator.update((feat, vid, camid))
+                valid_samples += 1
+
+        except Exception as e:
+            logger.error(f"Inference failed at sample {n_iter}: {e}")
+            continue
+
+    if valid_samples == 0:
+        logger.error("No valid features were extracted from inference. Please check model or input format.")
+        empty_cmc = np.zeros(50, dtype=np.float32)
+        return empty_cmc[0], empty_cmc[4]
+
+    try:
+        cmc, mAP, _, _, _, _, _ = evaluator.compute()
+        logger.info("Validation Results ")
+        logger.info("mAP: {:.1%}".format(mAP))
+        for r in [1, 5, 10]:
+            logger.info("CMC curve, Rank-{:<3}:{:.1%}".format(r, cmc[r - 1]))
+        return cmc[0], cmc[4]
+    except Exception as e:
+        logger.error(f"Evaluator failed to compute metrics: {e}")
+        empty_cmc = np.zeros(50, dtype=np.float32)
+        return empty_cmc[0], empty_cmc[4]

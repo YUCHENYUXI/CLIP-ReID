@@ -28,7 +28,7 @@ INPUT:
   # PIXEL_STD: [0.5, 0.5, 0.5]
 
 DATALOADER:
-  NUM_WORKERS: 8
+  NUM_WORKERS: 4
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
 
