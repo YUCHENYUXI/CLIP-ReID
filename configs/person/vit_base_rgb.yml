@@ -13,6 +13,10 @@ MODEL:
   # SIE_COE: 1.0
   # SIE_CAMERA: True
   SIE_VIEW: False
+  TRAIN_MODE: True
+  RESUME: True
+  CHECKPOINT: 'res/vit_rgb_lrD/model_0000.pth'
+  CHECKPOINT_EPOCH: 0
 
 INPUT:
   SIZE_TRAIN: [256, 128]
@@ -48,7 +52,7 @@ SOLVER:
   WEIGHT_DECAY_BIAS : 0.0005
 
   GAMMA : 0.1 # 学习率衰减因子 
-  STEPS : (50, 90, 110) # 已经去除两层-对应D3
+  STEPS : (70, 110, 130)
   WARMUP_FACTOR : 0.0005
 
   WARMUP_ITERS : 3 # 约2.5个epoch

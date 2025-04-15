@@ -39,6 +39,16 @@ _C.MODEL.SIE_COE = 3.0
 _C.MODEL.SIE_CAMERA = False
 _C.MODEL.SIE_VIEW = False
 
+#   TRAIN_MODE: True
+#   RESUME: True
+#   CHECKPOINT: 'res/vit_rgb_lrD/model_0000.pth'
+#   CHECKPOINT_EPOCH: 0
+_C.MODEL.TRAIN_MODE = True
+_C.MODEL.RESUME = False
+_C.MODEL.CHECKPOINT = 'Path/to/your/checkpoint'
+_C.MODEL.CHECKPOINT_EPOCH = 0
+
+
 # INPUT-----------------------------------------------------------------------------
 _C.INPUT = CN()
 # Size of the image during training

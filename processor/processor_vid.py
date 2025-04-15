@@ -44,6 +44,16 @@ def do_train(cfg,
     all_start_time = time.monotonic()
     logger.info("Model: {}".format(model))
 
+    is_load_checkpoint = cfg.MODEL.RESUME
+    if is_load_checkpoint:
+        ckpt_path_resume = os.path.normpath(cfg.MODEL.CHECKPOINT)
+        # 加载模型
+        model.load_state_dict(torch.load(ckpt_path_resume))
+        logger.info(f"Load checkpoint from {ckpt_path_resume}")
+        resume_epoch = cfg.MODEL.CHECKPOINT_EPOCH
+        epoch = resume_epoch
+
+
     for epoch in range(1, epochs + 1):
         start_time = time.time()
         loss_meter.reset()
@@ -53,80 +63,83 @@ def do_train(cfg,
         TRILossmeter.reset()
 
         model.train()
+        train_mode = cfg.MODEL.TRAIN_MODE
+        test_mode = not train_mode
+        n_iter = 0
+        if train_mode:
+            for n_iter, (vids, pids, target_cam) in enumerate(train_loader):
+                try:
+                    optimizer.zero_grad()
+                    optimizer_center.zero_grad()
 
-        for n_iter, (vids, pids, target_cam) in enumerate(train_loader):
-            try:
-                optimizer.zero_grad()
-                optimizer_center.zero_grad()
+                    vids = vids.to(device)
+                    target = pids.to(device)
+                    target_cam = target_cam.to(device) if cfg.MODEL.SIE_CAMERA else None
+                    target_view = None
 
-                vids = vids.to(device)
-                target = pids.to(device)
-                target_cam = target_cam.to(device) if cfg.MODEL.SIE_CAMERA else None
-                target_view = None
+                    batch_size, num_frames, channels, height, width = vids.shape
+                    vids = vids.view(-1, channels, height, width)
+                    target_train = torch.stack([target for _ in range(num_frames)]).view(num_frames, batch_size)
+                    target_train = target_train.permute(1, 0).reshape(-1)
 
-                batch_size, num_frames, channels, height, width = vids.shape
-                vids = vids.view(-1, channels, height, width)
-                target_train = torch.stack([target for _ in range(num_frames)]).view(num_frames, batch_size)
-                target_train = target_train.permute(1, 0).reshape(-1)
+                    with torch.amp.autocast('cuda', enabled=True):
+                        score, feat = model(vids, target_train, cam_label=target_cam, view_label=target_view)
 
-                with torch.amp.autocast('cuda', enabled=True):
-                    score, feat = model(vids, target_train, cam_label=target_cam, view_label=target_view)
+                        # check for None or invalid output
+                        if score is None or feat is None:
+                            logger.warning(f"Model output is None at epoch {epoch}, iter {n_iter}")
+                            continue
+                        if isinstance(score, list):
+                            for s in score:
+                                if not torch.isfinite(s).all():
+                                    logger.warning("Non-finite score detected, skipping this batch.")
+                                    continue
+                        if isinstance(feat, list):
+                            for f in feat:
+                                if not torch.isfinite(f).all():
+                                    logger.warning("Non-finite feature detected, skipping this batch.")
+                                    continue
 
-                    # check for None or invalid output
-                    if score is None or feat is None:
-                        logger.warning(f"Model output is None at epoch {epoch}, iter {n_iter}")
-                        continue
-                    if isinstance(score, list):
-                        for s in score:
-                            if not torch.isfinite(s).all():
-                                logger.warning("Non-finite score detected, skipping this batch.")
-                                continue
-                    if isinstance(feat, list):
-                        for f in feat:
-                            if not torch.isfinite(f).all():
-                                logger.warning("Non-finite feature detected, skipping this batch.")
-                                continue
+                        for i in range(len(score)):
+                            score[i] = score[i].view(batch_size, num_frames, -1).mean(dim=1)
+                        for i in range(len(feat)):
+                            feat[i] = feat[i].view(batch_size, num_frames, -1).mean(dim=1)
 
-                    for i in range(len(score)):
-                        score[i] = score[i].view(batch_size, num_frames, -1).mean(dim=1)
-                    for i in range(len(feat)):
-                        feat[i] = feat[i].view(batch_size, num_frames, -1).mean(dim=1)
+                        loss, idloss, triloss = loss_fn(score, feat, target, target_cam)
 
-                    loss, idloss, triloss = loss_fn(score, feat, target, target_cam)
+                        if not math.isfinite(loss.item()):
+                            logger.warning(f"Non-finite loss at epoch {epoch}, iter {n_iter}. Skipping.")
+                            continue
 
-                    if not math.isfinite(loss.item()):
-                        logger.warning(f"Non-finite loss at epoch {epoch}, iter {n_iter}. Skipping.")
-                        continue
-
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-
-                if 'center' in cfg.MODEL.METRIC_LOSS_TYPE:
-                    for param in center_criterion.parameters():
-                        if param.grad is not None:
-                            param.grad.data *= (1. / cfg.SOLVER.CENTER_LOSS_WEIGHT)
-                    scaler.step(optimizer_center)
+                    scaler.scale(loss).backward()
+                    scaler.step(optimizer)
                     scaler.update()
 
-                if isinstance(score, list):
-                    acc = (score[0].max(1)[1] == target).float().mean()
-                else:
-                    acc = (score.max(1)[1] == target).float().mean()
+                    if 'center' in cfg.MODEL.METRIC_LOSS_TYPE:
+                        for param in center_criterion.parameters():
+                            if param.grad is not None:
+                                param.grad.data *= (1. / cfg.SOLVER.CENTER_LOSS_WEIGHT)
+                        scaler.step(optimizer_center)
+                        scaler.update()
 
-                loss_meter.update(loss.item(), vids.shape[0])
-                acc_meter.update(acc.item(), 1)
-                IDlossmeter.update(idloss, 1)
-                TRILossmeter.update(triloss, 1)
+                    if isinstance(score, list):
+                        acc = (score[0].max(1)[1] == target).float().mean()
+                    else:
+                        acc = (score.max(1)[1] == target).float().mean()
 
-                if (n_iter + 1) % log_period == 0:
-                    logger.info(f"Epoch[{epoch}] Iter[{n_iter+1}/{len(train_loader)}] "
-                                f"Loss: {loss_meter.avg:.3f}, ID: {IDlossmeter.avg:.3f}, Tri: {TRILossmeter.avg:.3f}, "
-                                f"Acc: {acc_meter.avg:.3f}, LR: {scheduler.get_lr()[0]:.2e}")
+                    loss_meter.update(loss.item(), vids.shape[0])
+                    acc_meter.update(acc.item(), 1)
+                    IDlossmeter.update(idloss, 1)
+                    TRILossmeter.update(triloss, 1)
 
-            except Exception as e:
-                logger.exception(f"Exception during training at epoch {epoch}, iter {n_iter}: {e}")
-                continue  # 防止因模型未训练或偶发错误中断整个流程
+                    if (n_iter + 1) % log_period == 0:
+                        logger.info(f"Epoch[{epoch}] Iter[{n_iter+1}/{len(train_loader)}] "
+                                    f"AVGLoss: {loss_meter.avg:.3f}, AVGID: {IDlossmeter.avg:.3f}, AVGTri: {TRILossmeter.avg:.3f}, "
+                                    f"AVGAcc: {acc_meter.avg:.3f}, LR: {scheduler.get_lr()[0]:.2e}")
+
+                except Exception as e:
+                    logger.exception(f"Exception during training at epoch {epoch}, iter {n_iter}: {e}")
+                    continue  # 防止因模型未训练或偶发错误中断整个流程
 
         scheduler.step()
 
@@ -135,16 +148,27 @@ def do_train(cfg,
         logger.info(f"Epoch {epoch} done. Time per batch: {time_per_batch:.3f}s, "
                     f"Speed: {train_loader.batch_size / time_per_batch:.1f} samples/s")
 
+
         if (epoch % checkpoint_period == 0) or (epoch in cfg.SOLVER.STEPS):
-            ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"{cfg.MODEL.NAME}_{epoch}.pth")
+            if is_load_checkpoint:
+                ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"Base_{ckpt_path_resume}_New_{cfg.MODEL.NAME}_Plus{epoch}.pth")
+            else:
+                ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"{cfg.MODEL.NAME}_{epoch}.pth")
             torch.save(model.state_dict(), ckpt_path)
             logger.info(f"Saved checkpoint to {ckpt_path}")
 
-        if epoch % eval_period == 0:
+        if test_mode or (epoch % checkpoint_period == 0) or (epoch in cfg.SOLVER.STEPS):
+            ckpt_path = r"C:\Users\thesk\Desktop\ViT-B-16_140.pth"
+            # 加载模型
+            model.load_state_dict(torch.load(ckpt_path))
+            logger.info(f"Load checkpoint from {ckpt_path}")
+
+        if test_mode or epoch % eval_period == 0:
             try:
                 model.eval()
                 for n_iter, (video, target_id, cam_id) in enumerate(val_loader):
                     video = video.to(device)
+                    cams= cam_id.tolist()
                     cam_id = cam_id.to(device) if cfg.MODEL.SIE_CAMERA else None
                     target_view = None
                     with torch.no_grad():
@@ -152,7 +176,7 @@ def do_train(cfg,
                         video = video.view(-1, channels, height, width)
                         feat = model(video, cam_label=cam_id, view_label=target_view)
                         feat = feat.view(batch_size, num_frames, -1).mean(dim=1)
-                        evaluator.update((feat, target_id, cam_id))
+                        evaluator.update((feat, target_id, cams))
                 cmc, mAP, *_ = evaluator.compute()
                 logger.info(f"Validation Results - Epoch: {epoch}")
                 logger.info(f"mAP: {mAP:.1%}")
