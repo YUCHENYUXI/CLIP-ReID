@@ -157,7 +157,7 @@ def do_train(cfg,
             torch.save(model.state_dict(), ckpt_path)
             logger.info(f"Saved checkpoint to {ckpt_path}")
 
-        if test_mode or (epoch % checkpoint_period == 0) or (epoch in cfg.SOLVER.STEPS):
+        if test_mode:
             ckpt_path = r"res/vit_rgb_lrD/ViT-B-16_100.pth"
             # 加载模型
             model.load_state_dict(torch.load(ckpt_path))

@@ -4,7 +4,7 @@
 GPU_THRESHOLD=10  # GPU 使用率低于 10%
 TIMEOUT=5         # 5 分钟
 PID_CHECK_INTERVAL=60  # 每隔 1 分钟检查一次程序是否退出
-LOG_FILE="/var/log/gpu_shutdown.log"  # 日志文件路径
+LOG_FILE="./res/gpu_shutdown.log"  # 日志文件路径
 
 # 检查 GPU 使用率
 check_gpu_usage() {
