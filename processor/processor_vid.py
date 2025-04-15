@@ -158,15 +158,16 @@ def do_train(cfg,
             logger.info(f"Saved checkpoint to {ckpt_path}")
 
         if test_mode or (epoch % checkpoint_period == 0) or (epoch in cfg.SOLVER.STEPS):
-            ckpt_path = r"C:\Users\thesk\Desktop\ViT-B-16_140.pth"
+            ckpt_path = r"res/vit_rgb_lrD/ViT-B-16_100.pth"
             # 加载模型
             model.load_state_dict(torch.load(ckpt_path))
-            logger.info(f"Load checkpoint from {ckpt_path}")
+            logger.info(f"TEST--Load checkpoint from {ckpt_path}")
 
         if test_mode or epoch % eval_period == 0:
             try:
                 model.eval()
                 for n_iter, (video, target_id, cam_id) in enumerate(val_loader):
+                    print("Testing")
                     video = video.to(device)
                     cams= cam_id.tolist()
                     cam_id = cam_id.to(device) if cfg.MODEL.SIE_CAMERA else None
@@ -177,6 +178,7 @@ def do_train(cfg,
                         feat = model(video, cam_label=cam_id, view_label=target_view)
                         feat = feat.view(batch_size, num_frames, -1).mean(dim=1)
                         evaluator.update((feat, target_id, cams))
+                    
                 cmc, mAP, *_ = evaluator.compute()
                 logger.info(f"Validation Results - Epoch: {epoch}")
                 logger.info(f"mAP: {mAP:.1%}")
@@ -185,6 +187,10 @@ def do_train(cfg,
             except Exception as e:
                 logger.exception(f"Evaluation failed at epoch {epoch}: {e}")
             torch.cuda.empty_cache()
+        
+        
+        if test_mode:
+            break
 
     total_time = timedelta(seconds=time.monotonic() - all_start_time)
     logger.info(f"Total running time: {total_time}")
