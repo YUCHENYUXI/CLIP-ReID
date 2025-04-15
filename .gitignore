@@ -1,6 +1,4 @@
-__pycache__/*
-*.pt
-*.pth
-*.pyc
-.gitignore
+*__pycache__*
+
+.vscode
 res
