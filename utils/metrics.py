@@ -1,6 +1,28 @@
 import torch
 import numpy as np
+import os
 from utils.reranking import re_ranking
+
+
+def euclidean_distance(qf, gf):
+    m = qf.shape[0]
+    n = gf.shape[0]
+    dist_mat = torch.pow(qf, 2).sum(dim=1, keepdim=True).expand(m, n) + \
+               torch.pow(gf, 2).sum(dim=1, keepdim=True).expand(n, m).t()
+    dist_mat.addmm_(1, -2, qf, gf.t())
+    return dist_mat.cpu().numpy()
+
+def cosine_similarity(qf, gf):
+    epsilon = 0.00001
+    dist_mat = qf.mm(gf.t())
+    qf_norm = torch.norm(qf, p=2, dim=1, keepdim=True)  # mx1
+    gf_norm = torch.norm(gf, p=2, dim=1, keepdim=True)  # nx1
+    qg_normdot = qf_norm.mm(gf_norm.t())
+
+    dist_mat = dist_mat.mul(1 / qg_normdot).cpu().numpy()
+    dist_mat = np.clip(dist_mat, -1 + epsilon, 1 - epsilon)
+    dist_mat = np.arccos(dist_mat)
+    return dist_mat
 
 
 def eval_func(distmat, q_pids, g_pids, q_camids, g_camids, max_rank=50):
@@ -8,11 +30,12 @@ def eval_func(distmat, q_pids, g_pids, q_camids, g_camids, max_rank=50):
         Key: for each query identity, its gallery images from the same camera view are discarded.
         """
     num_q, num_g = distmat.shape
-
+    # distmat g
+    #    q    1 3 2 4
+    #         4 1 2 3
     if num_g < max_rank:
         max_rank = num_g
         print("Note: number of gallery samples is quite small, got {}".format(num_g))
-        
     indices = np.argsort(distmat, axis=1)
     #  0 2 1 3
     #  1 2 3 0
@@ -104,7 +127,7 @@ class R1_mAP_eval():
 
         else:
             print('=> Computing DistMat with euclidean_distance')
-            distmat = torch.cdist(qf, gf).cpu().numpy()
+            distmat = euclidean_distance(qf, gf)
         cmc, mAP = eval_func(distmat, q_pids, g_pids, q_camids, g_camids)
 
         return cmc, mAP, distmat, self.pids, self.camids, qf, gf

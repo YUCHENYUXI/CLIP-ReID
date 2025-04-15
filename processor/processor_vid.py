@@ -166,8 +166,8 @@ def do_train(cfg,
         if test_mode or epoch % eval_period == 0:
             try:
                 model.eval()
+                print("Testing")
                 for n_iter, (video, target_id, cam_id) in enumerate(val_loader):
-                    print("Testing")
                     video = video.to(device)
                     cams= cam_id.tolist()
                     cam_id = cam_id.to(device) if cfg.MODEL.SIE_CAMERA else None

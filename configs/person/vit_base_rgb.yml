@@ -79,4 +79,4 @@ TEST:
 DATASETS:
   NAMES: ('mars')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/vit_rgb_lrD'
+OUTPUT_DIR: 'res/vit_rgb_E240'
