@@ -44,8 +44,7 @@ def do_train(cfg,
     all_start_time = time.monotonic()
     logger.info("Model: {}".format(model))
 
-    is_load_checkpoint = cfg.MODEL.RESUME
-    if is_load_checkpoint:
+    if cfg.MODEL.RESUME:
         ckpt_path_resume = os.path.normpath(cfg.MODEL.CHECKPOINT)
         # 加载模型
         model.load_state_dict(torch.load(ckpt_path_resume))
@@ -150,7 +149,7 @@ def do_train(cfg,
 
 
         if (epoch % checkpoint_period == 0) or (epoch in cfg.SOLVER.STEPS):
-            if is_load_checkpoint:
+            if cfg.MODEL.RESUME:
                 ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"Base_{ckpt_path_resume}_New_{cfg.MODEL.NAME}_Plus{epoch}.pth")
             else:
                 ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"{cfg.MODEL.NAME}_{epoch}.pth")
