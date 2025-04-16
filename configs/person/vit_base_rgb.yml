@@ -1,8 +1,8 @@
 MODEL:
   NAME: 'ViT-B-16'
   NECK: 'bnneck'
-  ID_LOSS_WEIGHT : 1
-  TRIPLET_LOSS_WEIGHT : 1
+  ID_LOSS_WEIGHT : 1.
+  TRIPLET_LOSS_WEIGHT : 1.
   METRIC_LOSS_TYPE: 'triplet'
   DIST_TRAIN: False
   NO_MARGIN: False
