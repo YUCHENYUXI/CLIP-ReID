@@ -9,7 +9,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "CLIP_BASE_VID_CNN",
+            "name": "R_CNN",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/train_vid.py",
@@ -25,13 +25,29 @@
             "justMyCode": false
         },
         {
-            "name": "CLIP_BASE_VID_VIT",
+            "name": "R_VIT",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/train_vid.py",
             "args": [
                 "--config_file",
                 "configs/person/vit_base_rgb.yml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "E_VIT",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_vid.py",
+            "args": [
+                "--config_file",
+                "configs/person/vit_base_e.yml"
             ],
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0"
