@@ -52,7 +52,7 @@ SOLVER:
   WEIGHT_DECAY_BIAS : 0.0005
 
   GAMMA : 0.1 # 学习率衰减因子 
-  STEPS : [60,100]
+  STEPS : (60,100)
   WARMUP_FACTOR : 0.1
 
   WARMUP_ITERS : 10 # epo
