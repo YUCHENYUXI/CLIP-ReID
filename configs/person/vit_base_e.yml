@@ -77,6 +77,6 @@ TEST:
   EVAL: True
 
 DATASETS:
-  NAMES: ('event')
+  NAMES: ('aer_event')
   ROOT_DIR: ('../data')
 OUTPUT_DIR: 'res/e161322'

@@ -35,6 +35,12 @@ def make_dataloader(cfg):
             sampler=RandomIdentitySampler(dataset.train, num_instances=cfg.DATALOADER.NUM_INSTANCE),
             batch_size=cfg.SOLVER.IMS_PER_BATCH, num_workers=cfg.DATALOADER.NUM_WORKERS,
             pin_memory=is_pin, drop_last=True)
+    if cfg.DATASETS.NAMES == 'aer_event':
+        trainloader = DataLoader(
+            VideoDataset(dataset.train, spatial_transform=spatial_transform_train, temporal_transform=temporal_transform_train),
+            sampler=RandomIdentitySampler(dataset.train, num_instances=cfg.DATALOADER.NUM_INSTANCE),
+            batch_size=cfg.SOLVER.IMS_PER_BATCH, num_workers=cfg.DATALOADER.NUM_WORKERS,
+            pin_memory=is_pin, drop_last=True)
     # norm train loader
     # trainloader = DataLoader(
     # VideoDataset(dataset.train_dense, \
