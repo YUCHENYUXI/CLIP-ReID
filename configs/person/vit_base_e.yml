@@ -79,4 +79,4 @@ TEST:
 DATASETS:
   NAMES: ('aer_event')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/e161322'
+OUTPUT_DIR: 'res/e161400'

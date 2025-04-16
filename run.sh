@@ -15,7 +15,8 @@ screen -S "$hex_name" -X screen -t Training
 screen -S "$hex_name" -p Training -X logfile "${log_prefix}_training.log"
 screen -S "$hex_name" -p Training -X log on
 screen -S "$hex_name" -p Training -X stuff "conda activate py8\n"
-screen -S "$hex_name" -p Training -X stuff "CUDA_VISIBLE_DEVICES=0 python train_vid.py --config_file configs/person/vit_base_rgb.yml\n"
+screen -S "$hex_name" -p Training -X stuff "CUDA_VISIBLE_DEVICES=0 python train_vid.py --config_file configs/person/vit_base_e.yml\n"
+# screen -S "$hex_name" -p Training -X stuff "CUDA_VISIBLE_DEVICES=0 python train_vid.py --config_file configs/person/vit_base_rgb.yml\n"
 
 # 创建第二个窗口：TF，带日志
 screen -S "$hex_name" -X screen -t TF
