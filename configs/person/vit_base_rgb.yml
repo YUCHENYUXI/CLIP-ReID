@@ -14,8 +14,8 @@ MODEL:
   # SIE_CAMERA: True
   SIE_VIEW: False
   TRAIN_MODE: True
-  RESUME: False
-  CHECKPOINT: ''
+  RESUME: True
+  CHECKPOINT: 'res/mars-676-161032/ViT-B-16_120.pth'
   CHECKPOINT_EPOCH: 0
 
 INPUT:
@@ -79,4 +79,4 @@ TEST:
 DATASETS:
   NAMES: ('mars')
   ROOT_DIR: ('../data')
-OUTPUT_DIR: 'res/r1403'
+OUTPUT_DIR: 'res/r1812continue'
