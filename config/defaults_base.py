@@ -56,8 +56,8 @@ _C.INPUT.SIZE_TRAIN = [-1, -1]
 # Size of the image during test
 _C.INPUT.SIZE_TEST = [-1, -1]
 # Value of padding size
-_C.INPUT.seq_len = 4
-_C.INPUT.sample_stride = 4
+_C.INPUT.seq_len = 6
+_C.INPUT.sample_stride = 6
 
 
 

@@ -14,22 +14,21 @@ MODEL:
   # SIE_CAMERA: True
   SIE_VIEW: False
   TRAIN_MODE: True
-  RESUME: True
+  RESUME: False
   CHECKPOINT: 'res/mars-676-161032/ViT-B-16_120.pth'
   CHECKPOINT_EPOCH: 0
 
 INPUT:
   SIZE_TRAIN: [256, 128]
   SIZE_TEST: [256, 128]
-  seq_len: 4
-  sample_stride: 8
+  seq_len: 6
+  sample_stride: 6
 
 
 
 DATALOADER:
-  # NUM_WORKERS: 4
   SAMPLER: 'softmax_triplet'
-  NUM_INSTANCE: 4
+  NUM_INSTANCE: 8
 
 SOLVER:
   OPTIMIZER_NAME: 'Adam'
@@ -56,10 +55,10 @@ SOLVER:
   COSINE_MARGIN : 0.5
   COSINE_SCALE : 30
 
-  IMS_PER_BATCH : 32
+  IMS_PER_BATCH : 64
   
 TEST:
-  IMS_PER_BATCH: 32
+  IMS_PER_BATCH: 64
   RE_RANKING: False
   WEIGHT: ''
   NECK_FEAT: 'before'
