@@ -27,7 +27,7 @@ INPUT:
 
 
 DATALOADER:
-  NUM_WORKERS: 4
+  # NUM_WORKERS: 4
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
 

@@ -64,7 +64,7 @@ _C.INPUT.sample_stride = 4
 # DataLoader-----------------------------------------------------------------------------
 _C.DATALOADER = CN()
 # Number of data loading threads
-_C.DATALOADER.NUM_WORKERS = 8
+_C.DATALOADER.NUM_WORKERS = 6
 # Sampler for data loading
 _C.DATALOADER.SAMPLER = 'softmax'
 # Number of instance for one batch
@@ -114,7 +114,7 @@ _C.SOLVER.COSINE_SCALE = 30
 # epoch number of saving checkpoints
 _C.SOLVER.CHECKPOINT_PERIOD = 40
 # iteration of display training log
-_C.SOLVER.LOG_PERIOD = 90
+_C.SOLVER.LOG_PERIOD = 30
 # epoch number of validation
 _C.SOLVER.EVAL_PERIOD = 30
 # Number of images per batch

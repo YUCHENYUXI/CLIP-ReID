@@ -22,7 +22,7 @@ INPUT:
   sample_stride: 8
 
 DATALOADER:
-  NUM_WORKERS: 8
+  # NUM_WORKERS: 8
   SAMPLER: 'softmax_triplet'
   NUM_INSTANCE: 4
 
