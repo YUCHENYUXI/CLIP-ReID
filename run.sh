@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 获取当前时间戳并转为十六进制
-useTurnoff=1
+useTurnoff=$1
 timestamp=$(date +%s)
 hex_name=$(printf "%X" $timestamp)
 env="conda activate py8\n"
