@@ -64,7 +64,7 @@ _C.INPUT.sample_stride = 4
 # DataLoader-----------------------------------------------------------------------------
 _C.DATALOADER = CN()
 # Number of data loading threads
-_C.DATALOADER.NUM_WORKERS = 6
+_C.DATALOADER.NUM_WORKERS = 1
 # Sampler for data loading
 _C.DATALOADER.SAMPLER = 'softmax'
 # Number of instance for one batch

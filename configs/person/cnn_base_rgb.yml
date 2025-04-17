@@ -18,13 +18,13 @@ MODEL:
 INPUT:
   SIZE_TRAIN: [256, 128]
   SIZE_TEST: [256, 128]
-  seq_len: 4
-  sample_stride: 8
+  seq_len: 6
+  sample_stride: 6
 
 DATALOADER:
   # NUM_WORKERS: 8
   SAMPLER: 'softmax_triplet'
-  NUM_INSTANCE: 4
+  NUM_INSTANCE: 8
 
 SOLVER:
   OPTIMIZER_NAME: 'Adam'
@@ -66,6 +66,6 @@ DATASETS:
   NAMES: ('mars')
   ROOT_DIR: ('../data')
 
-OUTPUT_DIR: 'res/cnn_base_vid'
+OUTPUT_DIR: 'res/cnn_base_vid_sam'
 
-# CUDA_VISIBLE_DEVICES:0 python train.py --config_file configs/person/cnn_base.yml
+# CUDA_VISIBLE_DEVICES:0 python train.py --config_file configs/person/cnn_base_num8.yml

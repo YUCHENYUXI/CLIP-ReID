@@ -2,6 +2,7 @@
 
 # 获取当前时间戳并转为十六进制
 useTurnoff=$1
+echo $useTurnoff
 timestamp=$(date +%s)
 hex_name=$(printf "%X" $timestamp)
 env="conda activate py8\n"
@@ -21,7 +22,7 @@ screen -S "$hex_name" -p Training -X log on
 screen -S "$hex_name" -p Training -X stuff "${env}"
 screen -S "$hex_name" -p Training -X stuff "${command}"
 # screen -S "$hex_name" -p Training -X stuff "CUDA_VISIBLE_DEVICES=0 python train_vid.py --config_file configs/person/vit_base_rgb.yml\n"
-if useTurnoff; then
+if ((${useTurnoff} == 1)); then
     # 创建第二个窗口：TF，带日志
     screen -S "$hex_name" -X screen -t TF
     # screen -S "$hex_name" -p TF -X logfile "${log_prefix}_tf.log"
@@ -31,7 +32,7 @@ fi
 # 输出成功信息
 echo "Screen session '$hex_name' has been started with two windows and logging enabled:"
 echo "1. 'Training' running: conda activate py8 and python train_vid.py"
-if useTurnoff;then
+if ((${useTurnoff} == 1)); then
     echo "2. 'TF' running: bash /root/rgbe/git/CLIP-ReID/turnoff.sh"
 fi
 echo "Log files stored in: ${log_prefix}_*.log"
