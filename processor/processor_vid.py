@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from utils.meter import AverageMeter
 from utils.metrics import R1_mAP_eval
-from torch import amp
+from torch.cuda import amp
 import time
 from datetime import timedelta
 import math

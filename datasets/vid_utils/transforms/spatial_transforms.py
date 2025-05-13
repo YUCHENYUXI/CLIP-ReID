@@ -1,16 +1,18 @@
 from __future__ import absolute_import
-
+from logging import warning
 import random
-# import math
 import numbers
 import collections
 import numpy as np
 import torch
-from PIL import Image #, ImageOps
-# try:
-#     import accimage
-# except ImportError:
-accimage = None
+from PIL import Image #, ImageOps # https://github.com/uploadcare/pillow-simd
+try:
+    import accimage #https://github.com/pytorch/accimage
+    import torchvision
+    torchvision.set_image_backend('accimage')
+except ImportError:
+    warning("without_accimage")
+    accimage = None
 
 
 class Compose(object):
@@ -446,3 +448,4 @@ class Random2DTranslation(object):
         self.cropping = random.uniform(0, 1) < self.p
         self.tl_x = random.random()
         self.tl_y = random.random()
+

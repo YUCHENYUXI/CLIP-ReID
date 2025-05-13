@@ -3,14 +3,14 @@
     "configurations": [
         {
             "name": "当前",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
         },
         {
             "name": "R_CNN",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/train_vid.py",
             "args": [
@@ -26,7 +26,7 @@
         },
         {
             "name": "R_VIT",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/train_vid.py",
             "args": [
@@ -42,12 +42,28 @@
         },
         {
             "name": "E_VIT",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/train_vid.py",
             "args": [
                 "--config_file",
                 "configs/person/vit_base_e.yml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },        
+        {
+            "name": "RA_VIT",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/train_vid.py",
+            "args": [
+                "--config_file",
+                "configs/person/vit_base_ra.yml"
             ],
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0"

@@ -9,24 +9,13 @@ from utils.logger import setup_logger
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ReID Baseline Training")
-    parser.add_argument(
-        "--config_file", default="configs/person/vit_base.yml", help="path to config file", type=str
-    )
-    parser.add_argument("opts", help="Modify config options using the command-line", default=None,
-                        nargs=argparse.REMAINDER)
-
+    parser.add_argument("--config_file", required=True, help="path to config file", type=str)
     args = parser.parse_args()
-
     if args.config_file != "":
-        cfg.merge_from_file(args.config_file)
-    cfg.merge_from_list(args.opts)
-    cfg.freeze()
-
-    output_dir = cfg.OUTPUT_DIR
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    logger = setup_logger("transreid", output_dir, if_train=False)
+        cfg.merge_from_file(args.config_file).freeze()
+    if cfg.OUTPUT_DIR and not os.path.exists(cfg.OUTPUT_DIR):
+        os.makedirs(cfg.OUTPUT_DIR)
+    logger = setup_logger("transreid", cfg.OUTPUT_DIR, if_train=False)
     logger.info(args)
 
     if args.config_file != "":
