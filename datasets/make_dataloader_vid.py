@@ -2,23 +2,28 @@ import datasets.vid_utils.transforms.spatial_transforms as ST
 import datasets.vid_utils.transforms.temporal_transforms as TT
 def make_dataloader(cfg):
     # Data augmentation
+    # train
     spatial_transform_train =ST.Compose([ # 训练集-空间
-                ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
-                ST.RandomHorizontalFlip(),
-                ST.ToTensor(),
-                ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ])
-    temporal_transform_train =TT.TemporalRandomCrop( # 训练集-时间
-                size=cfg.INPUT.seq_len,
-                stride=cfg.INPUT.sample_stride
-            )
-
+        ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+        ST.RandomHorizontalFlip(),
+        ST.ToTensor(),
+        ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    # def __init__(self, size, stride, padding=True, pad_method='loop'):
+    temporal_transform_train =TT.TemporalCenterStrideCrop( # 训练集-时间
+        size=cfg.INPUT.seq_len,
+        stride=cfg.INPUT.sample_stride
+    )
+    # test
     spatial_transform_test = ST.Compose([
-                ST.Scale(cfg.INPUT.SIZE_TEST, interpolation=3),
-                ST.ToTensor(),
-                ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ])
-    temporal_transform_test = TT.TemporalBeginCrop()
+        ST.Scale(cfg.INPUT.SIZE_TEST, interpolation=3),
+        ST.ToTensor(),
+        ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    temporal_transform_test = TT.TemporalCenterStrideCrop(
+        size=cfg.INPUT.seq_len,
+        stride=cfg.INPUT.sample_stride
+    )
     
     import  datasets.vid_utils.tools.data_manager as data_manager
     dataset = data_manager.init_dataset(name=cfg.DATASETS.NAMES, root=cfg.DATASETS.ROOT_DIR)
