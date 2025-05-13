@@ -1,42 +1,30 @@
-from __future__ import absolute_import
-
 import random
 # import math
 import numpy as np
 
-
-class LoopPadding(object):
-
+class LoopPadding:
     def __init__(self, size):
         self.size = size
-
     def __call__(self, frame_indices):
         out = list(frame_indices)
-
         while len(out) < self.size:
             for index in out:
                 if len(out) >= self.size:
                     break
                 out.append(index)
-
         return out
 
-
-class TemporalCenterCrop(object):
+class TemporalCenterCrop:
     """Temporally crop the given frame indices at a center.
-
     If the number of frames is less than the size,
     loop the indices as many times as necessary to satisfy the size.
-
     Args:
         size (int): Desired output size of the crop.
     """
-
     def __init__(self, size, padding=True, pad_method='loop'):
         self.size = size
         self.padding = padding
         self.pad_method = pad_method
-
     def __call__(self, frame_indices):
         """
         Args:
@@ -44,13 +32,10 @@ class TemporalCenterCrop(object):
         Returns:
             list: Cropped frame indices.
         """
-
         center_index = len(frame_indices) // 2
         begin_index = max(0, center_index - (self.size // 2))
         end_index = min(begin_index + self.size, len(frame_indices))
-
         out = list(frame_indices[begin_index:end_index])
-
         if self.padding is True:
             if self.pad_method == 'loop':
                 while len(out) < self.size:
@@ -65,11 +50,9 @@ class TemporalCenterCrop(object):
                             break
                         out.append(index)
                 out.sort()
-
         return out
 
-
-class TemporalRandomCrop(object):
+class TemporalRandomCrop:
     """Temporally crop the given frame indices at a random location.
 
     If the number of frames is less than the size,
@@ -78,11 +61,9 @@ class TemporalRandomCrop(object):
     Args:
         size (int): Desired output size of the crop.
     """
-
     def __init__(self, size=4, stride=8):
         self.size = size
         self.stride = stride
-
     def __call__(self, frame_indices):
         """
         Args:
@@ -91,7 +72,6 @@ class TemporalRandomCrop(object):
             list: Cropped frame indices.
         """
         frame_indices = list(frame_indices)
-
         if len(frame_indices) >= self.size * self.stride:
             rand_end = len(frame_indices) - (self.size - 1) * self.stride - 1
             begin_index = random.randint(0, rand_end)
@@ -108,8 +88,7 @@ class TemporalRandomCrop(object):
 
         return out
 
-
-class TemporalBeginCrop(object):
+class TemporalBeginCrop:
     """Temporally crop the given frame indices at a beginning.
 
     If the number of frames is less than the size,
@@ -118,13 +97,10 @@ class TemporalBeginCrop(object):
     Args:
         size (int): Desired output size of the crop.
     """
-
     def __init__(self, size=4):
         self.size = size
-        
     def __call__(self, frame_indices):
         frame_indices = list(frame_indices)
-
         if len(frame_indices) >= 25:
             out = frame_indices[0:25:8]
         elif len(frame_indices) >= 13:
@@ -140,10 +116,9 @@ class TemporalBeginCrop(object):
                     if len(out) >= 4:
                         break
                     out.append(index)
-
         return out
 
-# class TemporalBeginCrop(object):
+# class TemporalBeginCrop:
 #     """Temporally crop the given frame indices at a beginning.
 
 #     If the number of frames is less than the size,

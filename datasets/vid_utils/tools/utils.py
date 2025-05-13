@@ -18,7 +18,7 @@ def mkdir_if_missing(directory):
                 raise
 
 
-class AverageMeter(object):
+class AverageMeter:
     """Computes and stores the average and current value.
        
        Code imported from https://github.com/pytorch/examples/blob/master/imagenet/main.py#L247-L262
@@ -46,7 +46,7 @@ def save_checkpoint(state, is_best, fpath='checkpoint.pth.tar'):
         shutil.copy(fpath, osp.join(osp.dirname(fpath), 'best_model.pth.tar'))
 
 
-class Logger(object):
+class Logger:
     """
     Write console output to external text file.
     Code imported from https://github.com/Cysu/open-reid/blob/master/reid/utils/logging.py.

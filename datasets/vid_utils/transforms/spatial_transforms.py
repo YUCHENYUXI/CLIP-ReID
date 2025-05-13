@@ -6,7 +6,7 @@ import torch
 from PIL import Image # ImageOps # PIL-SIMD https://github.com/uploadcare/pillow-simd
 accimage = None
 
-class Compose(object):
+class Compose:
     """Composes several transforms together.
     Args:
         transforms (list of ``Transform`` objects): list of transforms to compose.
@@ -26,7 +26,7 @@ class Compose(object):
         for t in self.transforms:
             t.randomize_parameters()
 
-class ToTensor(object):
+class ToTensor:
     """Convert a ``PIL.Image`` or ``numpy.ndarray`` to tensor.
     Converts a PIL.Image or numpy.ndarray (H x W x C) in the range
     [0, 255] to a torch.FloatTensor of shape (C x H x W) in the range [0.0, 1.0].
@@ -81,7 +81,7 @@ class ToTensor(object):
     def randomize_parameters(self):
         pass
 
-class Normalize(object):
+class Normalize:
     """Normalize an tensor image with mean and standard deviation.
     Given mean: (R, G, B) and std: (R, G, B),
     will normalize each channel of the torch.*Tensor, i.e. channel = (channel - mean) / std
@@ -104,7 +104,7 @@ class Normalize(object):
         return tensor
     def randomize_parameters(self):
         pass
-class Scale(object):
+class Scale:
     """Rescale the input PIL.Image to the given size.
     Args:
         size (sequence or int): Desired output size. If size is a sequence like
@@ -143,7 +143,7 @@ class Scale(object):
     def randomize_parameters(self):
         pass
 
-class RandomCrop(object):
+class RandomCrop:
     """Crops the given PIL.Image at a random location.
     Args:
         size (sequence or int): Desired output size of the crop. If size is an
@@ -175,7 +175,7 @@ class RandomCrop(object):
         self.tl_y = random.random()
 
         
-class CenterCrop(object):
+class CenterCrop:
     """Crops the given PIL.Image at the center.
     Args:
         size (sequence or int): Desired output size of the crop. If size is an
@@ -203,7 +203,7 @@ class CenterCrop(object):
         pass
 
 
-class CornerCrop(object):
+class CornerCrop:
     def __init__(self, size, crop_position=None):
         self.size = size
         if crop_position is None:
@@ -250,7 +250,7 @@ class CornerCrop(object):
                 0,
                 len(self.crop_positions) - 1)]
 
-class RandomHorizontalFlip(object):
+class RandomHorizontalFlip:
     """Horizontally flip the given PIL.Image randomly with a probability of 0.5."""
     def __call__(self, img):
         """
@@ -265,7 +265,7 @@ class RandomHorizontalFlip(object):
     def randomize_parameters(self):
         self.p = random.random()
 
-class MultiScaleCornerCrop(object):
+class MultiScaleCornerCrop:
     """Crop the given PIL.Image to randomly selected size.
     A crop of size is selected from scales of the original size.
     A position of cropping is randomly selected from 4 corners and 1 center.
@@ -329,7 +329,7 @@ class MultiScaleCornerCrop(object):
             0,
             len(self.scales) - 1)]
 
-class MultiScaleRandomCrop(object):
+class MultiScaleRandomCrop:
     def __init__(self, scales, size, interpolation=Image.BILINEAR):
         self.scales = scales
         self.size = size
@@ -354,7 +354,7 @@ class MultiScaleRandomCrop(object):
         self.tl_x = random.random()
         self.tl_y = random.random()
 
-class Random2DTranslation(object):
+class Random2DTranslation:
     """
     With a probability, first increase image size to (1 + 1/8), and then perform random crop.
 
@@ -398,10 +398,16 @@ class Random2DTranslation(object):
 # test crop:
 if __name__ == '__main__':
     from PIL import Image
-    img = Image(r"/home/ycyx/git/CLIP-ReID/datasets/vid_utils/transforms/0022C1T0001F017.bmp")
+
+    # benchmark transform 1e4 times:
+    import time
+    start = time.time()
     transform = Compose([
-        Scale((256,128)),
+        Scale((224,112)),
         ToTensor(),
         Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
-    img1=transform(img)
+    for i in range(10000):
+        img = Image.open(r"/home/ycyx/git/CLIP-ReID/datasets/vid_utils/transforms/0022C1T0001F017.bmp")
+        img1=transform(img)
+    print(time.time()-start)

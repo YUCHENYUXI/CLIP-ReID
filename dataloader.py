@@ -1,4 +1,4 @@
-# class AER_event(object):
+# class AER_event:
     
 #     def __init__(self, root='/media/amax/836e911f-c5c3-4c4b-91f2-41bb8f3f5cb6/DATA/zz1/AER_video', min_seq_len=0):
 #         self.root = osp.join(root, 'event')
