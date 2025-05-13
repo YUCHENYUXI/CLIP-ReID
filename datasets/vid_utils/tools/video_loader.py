@@ -1,11 +1,8 @@
-from __future__ import print_function, absolute_import
-
 import os
 import torch
 import functools
 import torch.utils.data as data
 from PIL import Image
-
 
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)

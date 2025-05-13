@@ -67,6 +67,6 @@ TEST:
   EVAL: True
 
 DATASETS:
-  NAMES: ('aer_event')
+  NAMES: ('aer_video')
   ROOT_DIR: ('../data')
 OUTPUT_DIR: 'res/eCO'

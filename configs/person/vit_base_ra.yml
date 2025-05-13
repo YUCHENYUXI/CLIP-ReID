@@ -67,6 +67,6 @@ TEST:
   EVAL: True
 
 DATASETS:
-  NAMES: ('AER_event')
+  NAMES: ('aer_video')
   ROOT_DIR: ('../data')
 OUTPUT_DIR: 'res/raDebug'
