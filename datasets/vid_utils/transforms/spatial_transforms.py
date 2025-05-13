@@ -1,19 +1,10 @@
-from __future__ import absolute_import
-from logging import warning
 import random
 import numbers
 import collections
 import numpy as np
 import torch
-from PIL import Image #, ImageOps # https://github.com/uploadcare/pillow-simd
-try:
-    import accimage #https://github.com/pytorch/accimage
-    import torchvision
-    torchvision.set_image_backend('accimage')
-except ImportError:
-    warning("without_accimage")
-    accimage = None
-
+from PIL import Image # ImageOps # PIL-SIMD https://github.com/uploadcare/pillow-simd
+accimage = None
 
 class Compose(object):
     """Composes several transforms together.
@@ -25,29 +16,23 @@ class Compose(object):
         >>>     transforms.ToTensor(),
         >>> ])
     """
-
     def __init__(self, transforms):
         self.transforms = transforms
-
     def __call__(self, img):
         for t in self.transforms:
             img = t(img)
         return img
-
     def randomize_parameters(self):
         for t in self.transforms:
             t.randomize_parameters()
-
 
 class ToTensor(object):
     """Convert a ``PIL.Image`` or ``numpy.ndarray`` to tensor.
     Converts a PIL.Image or numpy.ndarray (H x W x C) in the range
     [0, 255] to a torch.FloatTensor of shape (C x H x W) in the range [0.0, 1.0].
     """
-
     def __init__(self, norm_value=255):
         self.norm_value = norm_value
-
     def __call__(self, pic):
         """
         Args:
@@ -96,22 +81,17 @@ class ToTensor(object):
     def randomize_parameters(self):
         pass
 
-
 class Normalize(object):
     """Normalize an tensor image with mean and standard deviation.
     Given mean: (R, G, B) and std: (R, G, B),
-    will normalize each channel of the torch.*Tensor, i.e.
-    channel = (channel - mean) / std
+    will normalize each channel of the torch.*Tensor, i.e. channel = (channel - mean) / std
     Args:
         mean (sequence): Sequence of means for R, G, B channels respecitvely.
-        std (sequence): Sequence of standard deviations for R, G, B channels
-            respecitvely.
+        std (sequence): Sequence of standard deviations for R, G, B channels respecitvely.
     """
-
     def __init__(self, mean, std):
         self.mean = mean
         self.std = std
-
     def __call__(self, tensor):
         """
         Args:
@@ -119,15 +99,11 @@ class Normalize(object):
         Returns:
             Tensor: Normalized image.
         """
-        # TODO: make efficient
         for t, m, s in zip(tensor, self.mean, self.std):
             t.sub_(m).div_(s)
         return tensor
-
     def randomize_parameters(self):
         pass
-
-
 class Scale(object):
     """Rescale the input PIL.Image to the given size.
     Args:
@@ -139,14 +115,10 @@ class Scale(object):
         interpolation (int, optional): Desired interpolation. Default is
             ``PIL.Image.BILINEAR``
     """
-
     def __init__(self, size, interpolation=Image.BILINEAR):
-        assert isinstance(size,
-                          int) or (isinstance(size, collections.Iterable) and
-                                   len(size) == 2)
+        assert isinstance(size,int) or (isinstance(size, collections.Iterable) and len(size) == 2)
         self.size = size
         self.interpolation = interpolation
-
     def __call__(self, img):
         """
         Args:
@@ -154,7 +126,7 @@ class Scale(object):
         Returns:
             PIL.Image: Rescaled image.
         """
-        if isinstance(self.size, int):
+        if isinstance(self.size, int): # size is int
             w, h = img.size
             if (w <= h and w == self.size) or (h <= w and h == self.size):
                 return img
@@ -168,17 +140,14 @@ class Scale(object):
                 return img.resize((ow, oh), self.interpolation)
         else:
             return img.resize(self.size[::-1], self.interpolation)
-
     def randomize_parameters(self):
         pass
-
 
 class RandomCrop(object):
     """Crops the given PIL.Image at a random location.
     Args:
         size (sequence or int): Desired output size of the crop. If size is an
-            int instead of sequence like (h, w), a square crop (size, size) is
-            made.
+         int instead of sequence like (h, w), a square crop (size, size) is made.
     """
 
     def __init__(self, size):
@@ -213,13 +182,11 @@ class CenterCrop(object):
             int instead of sequence like (h, w), a square crop (size, size) is
             made.
     """
-
     def __init__(self, size):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
         else:
             self.size = size
-
     def __call__(self, img):
         """
         Args:
@@ -232,13 +199,11 @@ class CenterCrop(object):
         x1 = int(round((w - tw) / 2.))
         y1 = int(round((h - th) / 2.))
         return img.crop((x1, y1, x1 + tw, y1 + th))
-
     def randomize_parameters(self):
         pass
 
 
 class CornerCrop(object):
-
     def __init__(self, size, crop_position=None):
         self.size = size
         if crop_position is None:
@@ -247,7 +212,6 @@ class CornerCrop(object):
             self.randomize = False
         self.crop_position = crop_position
         self.crop_positions = ['c', 'tl', 'tr', 'bl', 'br']
-
     def __call__(self, img):
         image_width = img.size[0]
         image_height = img.size[1]
@@ -278,21 +242,16 @@ class CornerCrop(object):
             y1 = image_height - self.size
             x2 = image_width
             y2 = image_height
-
         img = img.crop((x1, y1, x2, y2))
-
         return img
-
     def randomize_parameters(self):
         if self.randomize:
             self.crop_position = self.crop_positions[random.randint(
                 0,
                 len(self.crop_positions) - 1)]
 
-
 class RandomHorizontalFlip(object):
     """Horizontally flip the given PIL.Image randomly with a probability of 0.5."""
-
     def __call__(self, img):
         """
         Args:
@@ -303,10 +262,8 @@ class RandomHorizontalFlip(object):
         if self.p < 0.5:
             return img.transpose(Image.FLIP_LEFT_RIGHT)
         return img
-
     def randomize_parameters(self):
         self.p = random.random()
-
 
 class MultiScaleCornerCrop(object):
     """Crop the given PIL.Image to randomly selected size.
@@ -318,7 +275,6 @@ class MultiScaleCornerCrop(object):
         size: size of the smaller edge
         interpolation: Default: PIL.Image.BILINEAR
     """
-
     def __init__(self,
                  scales,
                  size,
@@ -329,14 +285,12 @@ class MultiScaleCornerCrop(object):
         self.interpolation = interpolation
 
         self.crop_positions = crop_positions
-
     def __call__(self, img):
         min_length = min(img.size[0], img.size[1])
         crop_size = int(min_length * self.scale)
 
         image_width = img.size[0]
         image_height = img.size[1]
-
         if self.crop_position == 'c':
             center_x = image_width // 2
             center_y = image_height // 2
@@ -369,21 +323,17 @@ class MultiScaleCornerCrop(object):
         img = img.crop((x1, y1, x2, y2))
 
         return img.resize((self.size, self.size), self.interpolation)
-
     def randomize_parameters(self):
         self.scale = self.scales[random.randint(0, len(self.scales) - 1)]
         self.crop_position = self.crop_positions[random.randint(
             0,
             len(self.scales) - 1)]
 
-
 class MultiScaleRandomCrop(object):
-
     def __init__(self, scales, size, interpolation=Image.BILINEAR):
         self.scales = scales
         self.size = size
         self.interpolation = interpolation
-
     def __call__(self, img):
         min_length = min(img.size[0], img.size[1])
         crop_size = int(min_length * self.scale)
@@ -399,12 +349,10 @@ class MultiScaleRandomCrop(object):
         img = img.crop((x1, y1, x2, y2))
 
         return img.resize((self.size, self.size), self.interpolation)
-
     def randomize_parameters(self):
         self.scale = self.scales[random.randint(0, len(self.scales) - 1)]
         self.tl_x = random.random()
         self.tl_y = random.random()
-
 
 class Random2DTranslation(object):
     """
@@ -424,7 +372,6 @@ class Random2DTranslation(object):
         self.height, self.width = self.size
         self.p = p
         self.interpolation = interpolation
-
     def __call__(self, img):
         """
         Args:
@@ -443,9 +390,18 @@ class Random2DTranslation(object):
         x1 = int(round(self.tl_x * x_maxrange))
         y1 = int(round(self.tl_y * y_maxrange))
         return resized_img.crop((x1, y1, x1 + self.width, y1 + self.height))
-
     def randomize_parameters(self):
         self.cropping = random.uniform(0, 1) < self.p
         self.tl_x = random.random()
         self.tl_y = random.random()
 
+# test crop:
+if __name__ == '__main__':
+    from PIL import Image
+    img = Image(r"/home/ycyx/git/CLIP-ReID/datasets/vid_utils/transforms/0022C1T0001F017.bmp")
+    transform = Compose([
+        Scale((256,128)),
+        ToTensor(),
+        Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    img1=transform(img)
