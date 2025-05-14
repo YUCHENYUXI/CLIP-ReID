@@ -22,13 +22,13 @@ INPUT:
   SIZE_TRAIN: [256, 128]
   SIZE_TEST: [256, 128]
   seq_len: 6
-  sample_stride: 6
+  sample_stride: 3
 
 
 
 DATALOADER:
   SAMPLER: 'softmax_triplet'
-  NUM_INSTANCE: 8
+  NUM_INSTANCE: 4
 
 SOLVER:
   OPTIMIZER_NAME: 'Adam'
@@ -55,10 +55,10 @@ SOLVER:
   COSINE_MARGIN : 0.5
   COSINE_SCALE : 30
 
-  IMS_PER_BATCH : 64
+  IMS_PER_BATCH : 32
   
 TEST:
-  IMS_PER_BATCH: 64
+  IMS_PER_BATCH: 32
   RE_RANKING: False
   WEIGHT: ''
   NECK_FEAT: 'before'

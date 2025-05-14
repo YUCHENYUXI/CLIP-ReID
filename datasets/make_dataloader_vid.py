@@ -1,5 +1,10 @@
 import datasets.vid_utils.transforms.spatial_transforms as ST 
 import datasets.vid_utils.transforms.temporal_transforms as TT
+from torch.utils.data import DataLoader
+from .vid_utils.tools.video_loader import VideoDataset,AERDataset
+from .vid_utils.tools.samplers import RandomIdentitySampler
+import  datasets.vid_utils.tools.data_manager as data_manager
+
 def make_dataloader(cfg):
     # Data augmentation
     # train
@@ -25,27 +30,22 @@ def make_dataloader(cfg):
     )
 
     # dataset
-    import  datasets.vid_utils.tools.data_manager as data_manager
-    if cfg.DATASETS.NAMES == "aer_video":
+    dataset=data_manager.init_dataset(name=cfg.DATASETS.NAMES, root=cfg.DATASETS.ROOT_DIR)
+    cam_num=len(set(dataset.cam_ids))
+    if False and cfg.DATASETS.NAMES == "aer_video":
         dataset_event = data_manager.init_dataset(name=cfg.DATASETS.NAMES, root=cfg.DATASETS.ROOT_DIR,modal='event')
         dataset_rgb = data_manager.init_dataset(name=cfg.DATASETS.NAMES, root=cfg.DATASETS.ROOT_DIR,modal='rgb')
         cam_num=len(set(dataset_rgb.cam_ids) | set(dataset_event.cam_ids) )
-    dataset=data_manager.init_dataset(name=cfg.DATASETS.NAMES, root=cfg.DATASETS.ROOT_DIR)
     #
-    from torch.utils.data import DataLoader
-    from .vid_utils.tools.video_loader import VideoDataset
-    from .vid_utils.tools.samplers import RandomIdentitySampler
-
     is_pin = True
-    res ={"train":
-            {'event':DataLoader(
-                    VideoDataset(
-                        dataset_event.train, 
+    res ={"train":DataLoader(
+                    AERDataset(
+                        dataset.train, 
                         spatial_transform=spatial_transform_train, 
                         temporal_transform=temporal_transform_train
                         ),
                     sampler=RandomIdentitySampler(
-                        dataset_event.train, 
+                        dataset.train, 
                         num_instances=cfg.DATALOADER.NUM_INSTANCE
                         ),
                     batch_size=cfg.SOLVER.IMS_PER_BATCH, 
@@ -54,25 +54,8 @@ def make_dataloader(cfg):
                     drop_last=True,
                     persistent_workers=True,
                 ),
-            'rgb':DataLoader(
-                    VideoDataset(
-                        dataset_rgb.train, 
-                        spatial_transform=spatial_transform_train, 
-                        temporal_transform=temporal_transform_train
-                        ),
-                    sampler=RandomIdentitySampler(
-                        dataset_rgb.train, 
-                        num_instances=cfg.DATALOADER.NUM_INSTANCE
-                        ),
-                    batch_size=cfg.SOLVER.IMS_PER_BATCH, 
-                    num_workers=cfg.DATALOADER.NUM_WORKERS,
-                    pin_memory=is_pin, 
-                    drop_last=True,
-                    persistent_workers=True,
-                )
-            },
-          "val":{ 'event':DataLoader(
-                VideoDataset(dataset_event.query + dataset_event.gallery, 
+          "val":DataLoader(
+                AERDataset(dataset.query + dataset.gallery, 
                             spatial_transform=spatial_transform_test, 
                             temporal_transform=temporal_transform_test
                             ),
@@ -83,22 +66,75 @@ def make_dataloader(cfg):
                 drop_last=True,
                 persistent_workers=True,
             ),
-            'rgb':DataLoader(
-                VideoDataset(dataset_rgb.query + dataset_rgb.gallery, 
-                            spatial_transform=spatial_transform_test, 
-                            temporal_transform=temporal_transform_test
-                            ),
-                batch_size=cfg.TEST.IMS_PER_BATCH, 
-                shuffle=False, 
-                num_workers=cfg.DATALOADER.NUM_WORKERS,
-                pin_memory=is_pin, 
-                drop_last=True,
-                persistent_workers=True,
-            ) 
-            },
           "query_num":len(dataset.query),
           "cls_num": dataset.num_train_pids,
           "cam_num": cam_num,
           "view_num": None
           }
     return res
+    # is_pin = True
+    # res ={"train":
+    #         {'event':DataLoader(
+    #                 VideoDataset(
+    #                     dataset_event.train, 
+    #                     spatial_transform=spatial_transform_train, 
+    #                     temporal_transform=temporal_transform_train
+    #                     ),
+    #                 sampler=RandomIdentitySampler(
+    #                     dataset_event.train, 
+    #                     num_instances=cfg.DATALOADER.NUM_INSTANCE
+    #                     ),
+    #                 batch_size=cfg.SOLVER.IMS_PER_BATCH, 
+    #                 num_workers=cfg.DATALOADER.NUM_WORKERS,
+    #                 pin_memory=is_pin, 
+    #                 drop_last=True,
+    #                 persistent_workers=True,
+    #             ),
+    #         'rgb':DataLoader(
+    #                 VideoDataset(
+    #                     dataset_rgb.train, 
+    #                     spatial_transform=spatial_transform_train, 
+    #                     temporal_transform=temporal_transform_train
+    #                     ),
+    #                 sampler=RandomIdentitySampler(
+    #                     dataset_rgb.train, 
+    #                     num_instances=cfg.DATALOADER.NUM_INSTANCE
+    #                     ),
+    #                 batch_size=cfg.SOLVER.IMS_PER_BATCH, 
+    #                 num_workers=cfg.DATALOADER.NUM_WORKERS,
+    #                 pin_memory=is_pin, 
+    #                 drop_last=True,
+    #                 persistent_workers=True,
+    #             )
+    #         },
+    #       "val":{ 'event':DataLoader(
+    #             VideoDataset(dataset_event.query + dataset_event.gallery, 
+    #                         spatial_transform=spatial_transform_test, 
+    #                         temporal_transform=temporal_transform_test
+    #                         ),
+    #             batch_size=cfg.TEST.IMS_PER_BATCH, 
+    #             shuffle=False, 
+    #             num_workers=cfg.DATALOADER.NUM_WORKERS,
+    #             pin_memory=is_pin, 
+    #             drop_last=True,
+    #             persistent_workers=True,
+    #         ),
+    #         'rgb':DataLoader(
+    #             VideoDataset(dataset_rgb.query + dataset_rgb.gallery, 
+    #                         spatial_transform=spatial_transform_test, 
+    #                         temporal_transform=temporal_transform_test
+    #                         ),
+    #             batch_size=cfg.TEST.IMS_PER_BATCH, 
+    #             shuffle=False, 
+    #             num_workers=cfg.DATALOADER.NUM_WORKERS,
+    #             pin_memory=is_pin, 
+    #             drop_last=True,
+    #             persistent_workers=True,
+    #         ) 
+    #         },
+    #       "query_num":len(dataset.query),
+    #       "cls_num": dataset.num_train_pids,
+    #       "cam_num": cam_num,
+    #       "view_num": None
+    #       }
+    # return res

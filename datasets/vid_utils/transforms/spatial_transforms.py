@@ -4,7 +4,6 @@ import collections
 import numpy as np
 import torch
 from PIL import Image # ImageOps # PIL-SIMD https://github.com/uploadcare/pillow-simd
-accimage = None
 
 class Compose:
     """Composes several transforms together.
@@ -45,12 +44,6 @@ class ToTensor:
             img = torch.from_numpy(pic.transpose((2, 0, 1)))
             # backward compatibility
             return img.float().div(self.norm_value)
-
-        if accimage is not None and isinstance(pic, accimage.Image):
-            nppic = np.zeros(
-                [pic.channels, pic.height, pic.width], dtype=np.float32)
-            pic.copyto(nppic)
-            return torch.from_numpy(nppic)
 
         # handle PIL Image
         if pic.mode == 'I':

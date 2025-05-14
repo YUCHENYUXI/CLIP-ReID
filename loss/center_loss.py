@@ -1,8 +1,5 @@
-from __future__ import absolute_import
-
 import torch
 from torch import nn
-
 
 class CenterLoss(nn.Module):
     """Center loss.
