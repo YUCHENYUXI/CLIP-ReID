@@ -40,13 +40,13 @@ _C.MODEL.SIE_CAMERA = False
 _C.MODEL.SIE_VIEW = False
 
 #   TRAIN_MODE: True
-#   RESUME: True
-#   CHECKPOINT: 'res/vit_rgb_lrD/model_0000.pth'
-#   CHECKPOINT_EPOCH: 0
+#   IS_USE_CKPT: True
+#   CKPT_PATH: 'res/vit_rgb_lrD/model_0000.pth'
+#   LAST_OR_NEW_CKPT_EPOCH_MARK: 0
 _C.MODEL.TRAIN_MODE = True
-_C.MODEL.RESUME = False
-_C.MODEL.CHECKPOINT = 'Path/to/your/checkpoint'
-_C.MODEL.CHECKPOINT_EPOCH = 0
+_C.MODEL.IS_USE_CKPT = False
+_C.MODEL.CKPT_PATH = 'Path/to/your/checkpoint'
+_C.MODEL.LAST_OR_NEW_CKPT_EPOCH_MARK = 0
 
 
 # INPUT-----------------------------------------------------------------------------
@@ -118,14 +118,14 @@ _C.SOLVER.LOG_PERIOD = 30
 # epoch number of validation
 _C.SOLVER.EVAL_PERIOD = 30
 # Number of images per batch
-# This is global, so if we have 8 GPUs and IMS_PER_BATCH = 128, each GPU will
+# This is global, so if we have 8 GPUs and VIDS_PER_BATCH = 128, each GPU will
 # contain 16 images per batch
-_C.SOLVER.IMS_PER_BATCH = 64
+_C.SOLVER.VIDS_PER_BATCH = 64
 
 # TEST---------------------------------------------------------------------------- #
 _C.TEST = CN()
 # Number of images per batch during test
-_C.TEST.IMS_PER_BATCH = -1
+_C.TEST.VIDS_PER_BATCH = -1
 # If test with re-ranking, options: 'True','False'
 _C.TEST.RE_RANKING = False
 # Path to trained model
