@@ -49,10 +49,10 @@ if __name__ == '__main__':
     cfg ,args,logger= init_all()
     set_global_seed(cfg.SOLVER.SEED)
 
-    train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
-    datas = make_dataloader(cfg)
-    model = make_model(cfg, num_class=num_classes, camera_num=camera_num, view_num = view_num)
-    loss_func, center_criterion = make_loss(cfg, num_classes=num_classes)
+    # train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
+    dataloaders = make_dataloader(cfg)
+    model = make_model(cfg, num_class=dataloaders['cls_num'], camera_num=dataloaders['cam_num'], view_num = dataloaders['view_num'])
+    loss_func, center_criterion = make_loss(cfg, num_classes=dataloaders['cls_num'])
     optimizer, optimizer_center = make_optimizer(cfg, model, center_criterion)
     scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
 
@@ -60,11 +60,12 @@ if __name__ == '__main__':
         cfg,
         model,
         center_criterion,
-        train_loader,
-        val_loader,
+        dataloaders['train'],
+        dataloaders['val'],
         optimizer,
         optimizer_center,
         scheduler,
         loss_func,
-        num_query, args.local_rank
+        dataloaders['query_num'],
+        args.local_rank
     )
