@@ -18,15 +18,10 @@ def do_train(cfg,
              scheduler,
              loss_fn,
              num_query, local_rank):
-
-    log_period = cfg.SOLVER.LOG_PERIOD
-    checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
-    eval_period = cfg.SOLVER.EVAL_PERIOD
-
+    
     device = "cuda"
-    epochs = cfg.SOLVER.MAX_EPOCHS
 
-    logger = logging.getLogger("RGB-E.train")
+    logger = logging.getLogger("RAR.train")
     logger.info('Start training')
     
     model.to(local_rank)
@@ -36,36 +31,34 @@ def do_train(cfg,
 
     loss_meter = AverageMeter()
     acc_meter = AverageMeter()
-    IDlossmeter = AverageMeter()
-    TRILossmeter = AverageMeter()
-    evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
-    scaler = amp.GradScaler()
+    IDloss_meter = AverageMeter()
+    TRILoss_meter = AverageMeter()
+    R1_mAP_evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
+    GradScaler = amp.GradScaler()
 
-    all_start_time = time.monotonic()
+    train_start_t = time.monotonic()
     logger.info("Model: {}".format(model))
 
-    if cfg.MODEL.RESUME:
-        ckpt_path_resume = os.path.normpath(cfg.MODEL.CHECKPOINT)
+    if cfg.MODEL.IS_USE_CKPT:
+        ckpt_path_resume = os.path.normpath(cfg.MODEL.CKPT_PATH)
         # 加载模型
         model.load_state_dict(torch.load(ckpt_path_resume))
         logger.info(f"Load checkpoint from {ckpt_path_resume}")
-        resume_epoch = cfg.MODEL.CHECKPOINT_EPOCH
-        epoch = resume_epoch
+        epoch = cfg.MODEL.LAST_OR_NEW_CKPT_EPOCH_MARK
 
 
-    for epoch in range(1, epochs + 1):
+    for epoch in range(1, cfg.SOLVER.MAX_EPOCHS + 1):
         start_time = time.time()
         loss_meter.reset()
         acc_meter.reset()
-        evaluator.reset()
-        IDlossmeter.reset()
-        TRILossmeter.reset()
+        R1_mAP_evaluator.reset()
+        IDloss_meter.reset()
+        TRILoss_meter.reset()
 
         model.train()
-        train_mode = cfg.MODEL.TRAIN_MODE
-        test_mode = not train_mode
+        test_mode = not cfg.MODEL.TRAIN_MODE
         n_iter = 0
-        if train_mode:
+        if cfg.MODEL.TRAIN_MODE:
             for n_iter, (vids, pids, target_cam) in enumerate(train_loader):
                 try:
                     optimizer.zero_grad()
@@ -110,16 +103,16 @@ def do_train(cfg,
                             logger.warning(f"Non-finite loss at epoch {epoch}, iter {n_iter}. Skipping.")
                             continue
 
-                    scaler.scale(loss).backward()
-                    scaler.step(optimizer)
-                    scaler.update()
+                    GradScaler.scale(loss).backward()
+                    GradScaler.step(optimizer)
+                    GradScaler.update()
 
                     if 'center' in cfg.MODEL.METRIC_LOSS_TYPE:
                         for param in center_criterion.parameters():
                             if param.grad is not None:
                                 param.grad.data *= (1. / cfg.SOLVER.CENTER_LOSS_WEIGHT)
-                        scaler.step(optimizer_center)
-                        scaler.update()
+                        GradScaler.step(optimizer_center)
+                        GradScaler.update()
 
                     if isinstance(score, list):
                         acc = (score[0].max(1)[1] == target).float().mean()
@@ -128,12 +121,12 @@ def do_train(cfg,
 
                     loss_meter.update(loss.item(), vids.shape[0])
                     acc_meter.update(acc.item(), 1)
-                    IDlossmeter.update(idloss, 1)
-                    TRILossmeter.update(triloss, 1)
+                    IDloss_meter.update(idloss, 1)
+                    TRILoss_meter.update(triloss, 1)
 
-                    if (n_iter + 1) % log_period == 0:
+                    if (n_iter + 1) % cfg.SOLVER.LOG_PERIOD == 0:
                         logger.info(f"Epoch[{epoch}] Iter[{n_iter+1}/{len(train_loader)}] "
-                                    f"AVGLoss: {loss_meter.avg:.3f}, AVGID: {IDlossmeter.avg:.3f}, AVGTri: {TRILossmeter.avg:.3f}, "
+                                    f"AVGLoss: {loss_meter.avg:.3f}, AVGID: {IDloss_meter.avg:.3f}, AVGTri: {TRILoss_meter.avg:.3f}, "
                                     f"AVGAcc: {acc_meter.avg:.3f}, LR: {scheduler.get_lr()[0]:.2e}")
 
                 except Exception as e:
@@ -148,8 +141,8 @@ def do_train(cfg,
                     f"Speed: {train_loader.batch_size / time_per_batch:.1f} samples/s")
 
 
-        if (epoch % checkpoint_period == 0) or (epoch in cfg.SOLVER.STEPS):
-            if cfg.MODEL.RESUME:
+        if (epoch % cfg.SOLVER.CHECKPOINT_PERIOD == 0) or (epoch in cfg.SOLVER.STEPS):
+            if cfg.MODEL.IS_USE_CKPT:
                 ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"Base_{ckpt_path_resume}_New_{cfg.MODEL.NAME}_Plus{epoch}.pth")
             else:
                 ckpt_path = os.path.join(cfg.OUTPUT_DIR, f"{cfg.MODEL.NAME}_{epoch}.pth")
@@ -157,12 +150,12 @@ def do_train(cfg,
             logger.info(f"Saved checkpoint to {ckpt_path}")
 
         if test_mode:
-            ckpt_path = r"res/vit_rgb_lrD/ViT-B-16_100.pth"
+            ckpt_path = r""
             # 加载模型
             model.load_state_dict(torch.load(ckpt_path))
             logger.info(f"TEST--Load checkpoint from {ckpt_path}")
 
-        if test_mode or epoch % eval_period == 0:
+        if test_mode or epoch % cfg.SOLVER.EVAL_PERIOD == 0:
             try:
                 model.eval()
                 print("Testing")
@@ -176,9 +169,9 @@ def do_train(cfg,
                         video = video.view(-1, channels, height, width)
                         feat = model(video, cam_label=cam_id, view_label=target_view)
                         feat = feat.view(batch_size, num_frames, -1).mean(dim=1)
-                        evaluator.update((feat, target_id, cams))
+                        R1_mAP_evaluator.update((feat, target_id, cams))
                     
-                cmc, mAP, *_ = evaluator.compute()
+                cmc, mAP, *_ = R1_mAP_evaluator.compute()
                 logger.info(f"Validation Results - Epoch: {epoch}")
                 logger.info(f"mAP: {mAP:.1%}")
                 for r in [1, 5, 10]:
@@ -191,7 +184,7 @@ def do_train(cfg,
         if test_mode:
             break
 
-    total_time = timedelta(seconds=time.monotonic() - all_start_time)
+    total_time = timedelta(seconds=time.monotonic() - train_start_t)
     logger.info(f"Total running time: {total_time}")
     print(cfg.OUTPUT_DIR)
 
@@ -204,8 +197,8 @@ def do_inference(cfg, model, val_loader, num_query):
     logger = logging.getLogger("RGBE.test")
     logger.info("Enter inferencing")
 
-    evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
-    evaluator.reset()
+    R1_mAP_evaluator = R1_mAP_eval(num_query, max_rank=50, feat_norm=cfg.TEST.FEAT_NORM)
+    R1_mAP_evaluator.reset()
 
     if device:
         if torch.cuda.device_count() > 1:
@@ -258,7 +251,7 @@ def do_inference(cfg, model, val_loader, num_query):
                     logger.warning(f"Inference warning: feature norm is too small at sample {n_iter}, skipping.")
                     continue
 
-                evaluator.update((feat, vid, camid))
+                R1_mAP_evaluator.update((feat, vid, camid))
                 valid_samples += 1
 
         except Exception as e:
@@ -271,13 +264,13 @@ def do_inference(cfg, model, val_loader, num_query):
         return empty_cmc[0], empty_cmc[4]
 
     try:
-        cmc, mAP, _, _, _, _, _ = evaluator.compute()
+        cmc, mAP, _, _, _, _, _ = R1_mAP_evaluator.compute()
         logger.info("Validation Results ")
         logger.info("mAP: {:.1%}".format(mAP))
         for r in [1, 5, 10]:
             logger.info("CMC curve, Rank-{:<3}:{:.1%}".format(r, cmc[r - 1]))
         return cmc[0], cmc[4]
     except Exception as e:
-        logger.error(f"Evaluator failed to compute metrics: {e}")
+        logger.error(f"R1_mAP_evaluator failed to compute metrics: {e}")
         empty_cmc = np.zeros(50, dtype=np.float32)
         return empty_cmc[0], empty_cmc[4]
