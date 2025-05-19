@@ -55,12 +55,12 @@ SOLVER:
   # LOG_PERIOD : 30
 
   # EVAL_PERIOD : 10
-  IMS_PER_BATCH : 32
+  VIDS_PER_BATCH : 16
 
 TEST:
-  IMS_PER_BATCH: 32
+  VIDS_PER_BATCH: 16
   RE_RANKING: False
-  WEIGHT: 'res/cnn_base_vid/RN50_120.pth'
+  WEIGHT: ''
   NECK_FEAT: 'before'
   FEAT_NORM: 'yes'
   DIST_MAT: 'dist_mat.npy'
