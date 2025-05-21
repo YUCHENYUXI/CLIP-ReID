@@ -79,41 +79,46 @@ class build_transformer(nn.Module):
             trunc_normal_(self.cv_embed, std=.02)
             print('camera number is : {}'.format(view_num))
 
-    def forward(self, x, label=None, cam_label= None, view_label=None):
+    def forward(self,dpac ):
+        # x, label=None, cam_label= None, view_label=None
+        # dpac {'aer': aer,'rgb': rgb,'pid': pid,'cid': camid}
+
         if self.model_name == 'RN50':
-            image_features_last, image_features, image_features_proj = self.image_encoder(x) #B,512  B,128,512
-            img_feature_last = nn.functional.avg_pool2d(image_features_last, image_features_last.shape[2:4]).view(x.shape[0], -1) 
-            img_feature = nn.functional.avg_pool2d(image_features, image_features.shape[2:4]).view(x.shape[0], -1) 
-            img_feature_proj = image_features_proj[0]
+            exit(0)
+        #     image_features_last, image_features, image_features_proj = self.image_encoder(x) #B,512  B,128,512
+        #     img_feature_last = nn.functional.avg_pool2d(image_features_last, image_features_last.shape[2:4]).view(x.shape[0], -1) 
+        #     img_feature = nn.functional.avg_pool2d(image_features, image_features.shape[2:4]).view(x.shape[0], -1) 
+        #     img_feature_proj = image_features_proj[0]
 
         elif self.model_name == 'ViT-B-16':
-            if cam_label is not None and view_label is not None:
-                cv_embed = self.sie_coe * self.cv_embed[cam_label * self.view_num + view_label]
-            elif cam_label  is not  None:
-                cv_embed = self.sie_coe * self.cv_embed[cam_label]
-            elif view_label is not None:
-                cv_embed = self.sie_coe * self.cv_embed[view_label]
+            if dpac['cid'] is not  None:
+                cv_embed = self.sie_coe * self.cv_embed[dpac['cid']]
             else:
                 cv_embed = None
-            image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) #B,512  B,128,512
-            img_feature_last = image_features_last[:,0]
-            img_feature = image_features[:,0]
-            img_feature_proj = image_features_proj[:,0]
+            # rgb
 
-        feat = self.bottleneck(img_feature) 
-        feat_proj = self.bottleneck_proj(img_feature_proj) 
+            # aer
 
-        if self.training:
-            cls_score = self.classifier(feat)
-            cls_score_proj = self.classifier_proj(feat_proj)
-            return [cls_score, cls_score_proj], [img_feature_last, img_feature, img_feature_proj]
+            # # #
+        #     image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) #B,512  B,128,512
+        #     img_feature_last = image_features_last[:,0]
+        #     img_feature = image_features[:,0]
+        #     img_feature_proj = image_features_proj[:,0]
 
-        else:
-            if self.neck_feat == 'after':
-                # print("Test with feature after BN")
-                return torch.cat([feat, feat_proj], dim=1)
-            else:
-                return torch.cat([img_feature, img_feature_proj], dim=1)
+        # feat = self.bottleneck(img_feature)
+        # feat_proj = self.bottleneck_proj(img_feature_proj)
+
+        # if self.training:
+        #     cls_score = self.classifier(feat)
+        #     cls_score_proj = self.classifier_proj(feat_proj)
+        #     return [cls_score, cls_score_proj], [img_feature_last, img_feature, img_feature_proj]
+
+        # else:
+        #     if self.neck_feat == 'after':
+        #         # print("Test with feature after BN")
+        #         return torch.cat([feat, feat_proj], dim=1)
+        #     else:
+        #         return torch.cat([img_feature, img_feature_proj], dim=1)
 
 
     def load_param(self, trained_path):

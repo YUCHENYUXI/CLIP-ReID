@@ -33,25 +33,25 @@ class RandomIdentitySampler(Sampler):
             self.length += num - num % self.num_instances
 
     def __iter__(self):
-        list_container = []
+        insnum_trac__list = []
 
         for pid in self.pids:
             idxs = copy.deepcopy(self.index_dic[pid])
             if len(idxs) < self.num_instances:
                 idxs = np.random.choice(idxs, size=self.num_instances, replace=True)
             random.shuffle(idxs)
-            batch_idxs = []
+            ins_num_trac = []
             for idx in idxs:
-                batch_idxs.append(idx)
-                if len(batch_idxs) == self.num_instances:
-                    list_container.append(batch_idxs)
-                    batch_idxs = []
+                ins_num_trac.append(idx)
+                if len(ins_num_trac) == self.num_instances:
+                    insnum_trac__list.append(ins_num_trac)
+                    ins_num_trac = []
 
-        random.shuffle(list_container)
+        random.shuffle(insnum_trac__list)
 
         ret = []
-        for batch_idxs in list_container:
-            ret.extend(batch_idxs)
+        for ins_num_trac in insnum_trac__list:
+            ret.extend(ins_num_trac)
 
         return iter(ret)
 

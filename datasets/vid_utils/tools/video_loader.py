@@ -1,5 +1,3 @@
-from logging import warning
-import os
 import torch
 import torch.utils.data as data
 from PIL import Image
@@ -7,10 +5,7 @@ from PIL import Image
 def video_loader(img_paths):
     video = []
     for image_path in img_paths:
-        if os.path.exists(image_path):
-            video.append(Image.open(image_path))
-        else:
-            warning(f"Image path {image_path} does not exist.")
+        video.append(Image.open(image_path))
     return video
 
 class VideoDataset(data.Dataset):
@@ -84,28 +79,29 @@ class AERDataset(data.Dataset):
             'aer': aer,
             'rgb': rgb,
             'pid': pid,
-            'camid': camid
+            'cid': camid
         """
-        img_paths, pid, camid = self.dataset[index]
+        img_paths, pid, cid = self.dataset[index]
         if self.temporal_transform is not None:
             img_paths = self.temporal_transform(img_paths)
-        # load video # replace
-        aer_path=[]
-        rgb_path=[]
-        aer = self.loader(img_paths)
-        rgb = self.loader(img_paths)
+        # load video # e.g. replace ../data/AER_video/none/train/0461/0461C1T0002F000.bmp to ../data/AER_video/none/train/0461/0461C1T0002F000.bmp
+        aer_path=[path.replace('none','event') for path in img_paths]
+        rgb_path=[path.replace('none','rgb') for path in img_paths]
+        aer = self.loader(aer_path)
+        rgb = self.loader(rgb_path)
 
         if self.spatial_transform is not None:
             self.spatial_transform.randomize_parameters()
-            aer = [self.spatial_transform(img) for img in aer]
+            aer = [self.spatial_transform(img) for img in aer]# 3,H,W
             rgb = [self.spatial_transform(img) for img in rgb]
-        # trans T x C x H x W to C x T x H x W
+
         aer = torch.stack(aer, 0)
         rgb = torch.stack(rgb, 0)
-        # return aer, rgb, pid, camid
+
+        # return packed
         return {
             'aer': aer,
             'rgb': rgb,
             'pid': pid,
-            'camid': camid
+            'cid': cid,
         }
