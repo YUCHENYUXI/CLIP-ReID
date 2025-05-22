@@ -33,21 +33,16 @@ def init_all():
     logger.info("END_INIT\n")
     return cfg,args,logger
 def set_global_seed(seed):
-    # 设置 Python random 种子
     random.seed(seed)
-    # 设置 NumPy 种子
     np.random.seed(seed)
-    # 设置 PyTorch 种子
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    # 确保确定性行为
-    # torch.backends.cudnn.deterministic = True
-    # torch.backends.cudnn.benchmark = False
+    torch.cuda.manual_seed_all(seed)  # 更保险
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True 
 if __name__ == '__main__':
     print('*'*30,"PID = %d, GPU ID = %d" % (os.getpid(), torch.cuda.current_device()),'*'*30)
     cfg ,args,logger= init_all()
-    set_global_seed(cfg.SOLVER.SEED)
+    # set_global_seed(cfg.SOLVER.SEED) # debug 不用，更快
 
     # # train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
     # dataloaders = make_dataloader(cfg)

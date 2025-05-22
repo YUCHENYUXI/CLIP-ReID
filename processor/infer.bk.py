@@ -13,7 +13,7 @@
 #         if torch.cuda.device_count() > 1:
 #             print('Using {} GPUs for inference'.format(torch.cuda.device_count()))
 #             model = nn.DataParallel(model)
-#         model.to(device)
+#         model.to(device,non_blocking=True)
 
 #     model.eval()
 #     valid_samples = 0
@@ -24,14 +24,14 @@
 #             target_view = None
 
 #             with torch.no_grad():
-#                 imgs = imgs.to(device)
+#                 imgs = imgs.to(device,non_blocking=True)
 #                 if cfg.MODEL.SIE_CAMERA:
-#                     camids = camids.to(device)
+#                     camids = camids.to(device,non_blocking=True)
 #                 else: 
 #                     camids = None
 
 #                 if cfg.MODEL.SIE_VIEW:
-#                     target_view = target_view.to(device)
+#                     target_view = target_view.to(device,non_blocking=True)
 #                 else: 
 #                     target_view = None
 

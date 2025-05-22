@@ -149,6 +149,7 @@ def load_clip_to_cpu(backbone_name, h_resolution, w_resolution, vision_stride_si
         state_dict = None
 
     except RuntimeError:
+        print("\033[91mLoading JIT archive failed, loading state_dict instead\033[0m")
         state_dict = torch.load(model_path, map_location="cpu")
 
     model = clip.build_model(state_dict or model.state_dict(), h_resolution, w_resolution, vision_stride_size)

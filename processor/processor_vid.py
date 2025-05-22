@@ -65,11 +65,11 @@ def do_train(cfg,
                 optimizer_center.zero_grad()
                 # 数据
                 if torch.cuda.is_available():
-                    dpac['rgb'] = dpac['rgb'].to(device)
-                    dpac['aer'] = dpac['aer'].to(device)
-                    dpac['pid'] = dpac['pid'].to(device)
+                    dpac['rgb'] = dpac['rgb'].to(device,non_blocking=True)
+                    dpac['aer'] = dpac['aer'].to(device,non_blocking=True)
+                    dpac['pid'] = dpac['pid'].to(device,non_blocking=True)
                     if cfg.MODEL.SIE_CAMERA:
-                        dpac['cid'] = dpac['cid'].to(device)
+                        dpac['cid'] = dpac['cid'].to(device,non_blocking=True)
                 # 前向
                 with torch.cuda.amp.autocast():
                     score, feat = model(dpac)
@@ -127,13 +127,13 @@ def do_train(cfg,
         #         model.eval()
         #         print("Testing")
         #         for n_iter, dpac in enumerate(val_loader):
-        #             rgb = dpac['rgb'].to(device)
-        #             aer = dpac['aer'].to(device)
+        #             rgb = dpac['rgb'].to(device,non_blocking=True)
+        #             aer = dpac['aer'].to(device,non_blocking=True)
 
         #             cids= dpac['cid'].tolist()
         #             pid=dpac['pid']
 
-        #             cid_t = torch.tensor(cids).to(device) if cfg.MODEL.SIE_CAMERA else None
+        #             cid_t = torch.tensor(cids).to(device,non_blocking=True) if cfg.MODEL.SIE_CAMERA else None
         #             with torch.no_grad():
                         
         #                 feat = model(video, cam_label=cam_id, view_label=target_view)
