@@ -49,8 +49,17 @@ if __name__ == '__main__':
     cfg ,args,logger= init_all()
     set_global_seed(cfg.SOLVER.SEED)
 
-    # train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
-    dataloaders = make_dataloader(cfg)
+    # # train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
+    # dataloaders = make_dataloader(cfg)
+    
+    # #
+    import pickle
+    import os
+
+    if os.path.exists('dataloaders.pkl'):
+        with open('dataloaders.pkl', 'rb') as f:
+            dataloaders = pickle.load(f)
+    # # model enter
     model = make_model(cfg, num_class=dataloaders['cls_num'], camera_num=dataloaders['cam_num'], view_num = dataloaders['view_num'])
     loss_func, center_criterion = make_loss(cfg, num_classes=dataloaders['cls_num'])
     optimizer, optimizer_center = make_optimizer(cfg, model, center_criterion)

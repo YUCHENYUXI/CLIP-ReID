@@ -45,12 +45,12 @@ class build_transformer(nn.Module):
         self.camera_num = camera_num
         self.view_num = view_num
         self.sie_coe = cfg.MODEL.SIE_COE
-        
+        # classifier
         self.classifier = nn.Linear(self.in_planes, self.num_classes, bias=False)
         self.classifier.apply(weights_init_classifier)
         self.classifier_proj = nn.Linear(self.in_planes_proj, self.num_classes, bias=False)
         self.classifier_proj.apply(weights_init_classifier)
-
+        # bottleneck
         self.bottleneck = nn.BatchNorm1d(self.in_planes)
         self.bottleneck.bias.requires_grad_(False)
         self.bottleneck.apply(weights_init_kaiming)
@@ -100,25 +100,25 @@ class build_transformer(nn.Module):
             # aer
 
             # # #
-        #     image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) #B,512  B,128,512
-        #     img_feature_last = image_features_last[:,0]
-        #     img_feature = image_features[:,0]
-        #     img_feature_proj = image_features_proj[:,0]
+            image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) #B,512  B,128,512
+            img_feature_last = image_features_last[:,0]
+            img_feature = image_features[:,0]
+            img_feature_proj = image_features_proj[:,0]
 
-        # feat = self.bottleneck(img_feature)
-        # feat_proj = self.bottleneck_proj(img_feature_proj)
+        feat = self.bottleneck(img_feature)
+        feat_proj = self.bottleneck_proj(img_feature_proj)
 
-        # if self.training:
-        #     cls_score = self.classifier(feat)
-        #     cls_score_proj = self.classifier_proj(feat_proj)
-        #     return [cls_score, cls_score_proj], [img_feature_last, img_feature, img_feature_proj]
+        if self.training:
+            cls_score = self.classifier(feat)
+            cls_score_proj = self.classifier_proj(feat_proj)
+            return [cls_score, cls_score_proj], [img_feature_last, img_feature, img_feature_proj]
 
-        # else:
-        #     if self.neck_feat == 'after':
-        #         # print("Test with feature after BN")
-        #         return torch.cat([feat, feat_proj], dim=1)
-        #     else:
-        #         return torch.cat([img_feature, img_feature_proj], dim=1)
+        else:
+            if self.neck_feat == 'after':
+                # print("Test with feature after BN")
+                return torch.cat([feat, feat_proj], dim=1)
+            else:
+                return torch.cat([img_feature, img_feature_proj], dim=1)
 
 
     def load_param(self, trained_path):
