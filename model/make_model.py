@@ -63,9 +63,26 @@ class build_transformer(nn.Module):
         self.vision_stride_size = cfg.MODEL.STRIDE_SIZE[0]
         clip_model = load_clip_to_cpu(self.model_name, self.h_resolution, self.w_resolution, self.vision_stride_size)
         clip_model.to("cuda")
-
+        self.clip = clip_model
         self.ve = clip_model.visual
+        self.te = clip_model.transformer
+# #
+        # clip_model.transformer = Transformer(
+        #     width=transformer_width,
+        #     layers=transformer_layers,
+        #     heads=transformer_heads,
+        #     attn_mask=self.build_attention_mask()
+        # )
 
+        # clip_model.vocab_size = vocab_size
+        # clip_model.token_embedding = nn.Embedding(vocab_size, transformer_width)
+        # clip_model.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
+        # clip_model.ln_final = LayerNorm(transformer_width)
+
+        # clip_model.text_projection = nn.Parameter(torch.empty(transformer_width, embed_dim))
+        # clip_model.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+ 
+# #
         if cfg.MODEL.SIE_CAMERA and cfg.MODEL.SIE_VIEW:
             self.cv_embed = nn.Parameter(torch.zeros(camera_num * view_num, self.in_planes))
             trunc_normal_(self.cv_embed, std=.02)
