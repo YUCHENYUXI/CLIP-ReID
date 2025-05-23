@@ -113,8 +113,32 @@ class build_transformer(nn.Module):
                 cv_embed = self.sie_coe * self.cv_embed[dpac['cid']]
             else:
                 cv_embed = None
+                
+            ve = self.ve
+            te = self.te
             # rgb
+            x = self.conv1(x)  # shape = [*, width, grid, grid]
+            x = x.view(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+            x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width] NLD
+            x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
+            if cv_emb is not None: 
+                x[:,0] = x[:,0] + cv_emb
+            x = x + self.positional_embedding.to(x.dtype)
+            x = self.ln_pre(x)
+            
+            x = x.permute(1, 0, 2)  # NLD -> LND
+            
+            x11 = self.transformer.resblocks[:11](x) 
+            x12 = self.transformer.resblocks[11](x11) 
+            x11 = x11.permute(1, 0, 2)  # LND -> NLD  
+            x12 = x12.permute(1, 0, 2)  # LND -> NLD  
 
+            x12 = self.ln_post(x12)  
+
+            if self.proj is not None:
+                xproj = x12 @ self.proj   
+
+            return x11, x12, xproj
             # aer
 
             # # #
