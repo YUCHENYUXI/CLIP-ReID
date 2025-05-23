@@ -219,7 +219,7 @@ class VisionTransformer(nn.Module):
     def forward(self, x: torch.Tensor, cv_emb = None):
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.view(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
-        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width] NLD
         x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
         if cv_emb is not None: 
             x[:,0] = x[:,0] + cv_emb
@@ -400,10 +400,8 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(state_dict: dict, h_resolution: int, w_resolution: int, vision_stride_size: int):
-    vit = "visual.proj" in state_dict
-
-    if vit:
+def build_model(state_dict: dict, h_resolution: int, w_resolution: int, vision_stride_size: int) -> CLIP:
+    if "visual.proj" in state_dict:
         vision_width = state_dict["visual.conv1.weight"].shape[0]
         vision_layers = len([k for k in state_dict.keys() if k.startswith("visual.") and k.endswith(".attn.in_proj_weight")])
         vision_patch_size = state_dict["visual.conv1.weight"].shape[-1]
@@ -431,7 +429,7 @@ def build_model(state_dict: dict, h_resolution: int, w_resolution: int, vision_s
         context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,
         h_resolution, w_resolution
     )
-    if vit:
+    if "visual.proj" in state_dict:
         state_dict["visual.positional_embedding"] = resize_pos_embed(state_dict["visual.positional_embedding"], model.visual.positional_embedding, h_resolution, w_resolution)
     else: #RN50
         state_dict["visual.attnpool.positional_embedding"] = resize_pos_embed(state_dict["visual.attnpool.positional_embedding"], model.visual.attnpool.positional_embedding, h_resolution, w_resolution)

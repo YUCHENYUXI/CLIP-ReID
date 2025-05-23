@@ -64,7 +64,7 @@ class build_transformer(nn.Module):
         clip_model = load_clip_to_cpu(self.model_name, self.h_resolution, self.w_resolution, self.vision_stride_size)
         clip_model.to("cuda")
 
-        self.image_encoder = clip_model.visual
+        self.ve = clip_model.visual
 
         if cfg.MODEL.SIE_CAMERA and cfg.MODEL.SIE_VIEW:
             self.cv_embed = nn.Parameter(torch.zeros(camera_num * view_num, self.in_planes))
@@ -85,7 +85,7 @@ class build_transformer(nn.Module):
 
         if self.model_name == 'RN50':
             exit(0)
-        #     image_features_last, image_features, image_features_proj = self.image_encoder(x) #B,512  B,128,512
+        #     image_features_last, image_features, image_features_proj = self.ve(x) #B,512  B,128,512
         #     img_feature_last = nn.functional.avg_pool2d(image_features_last, image_features_last.shape[2:4]).view(x.shape[0], -1) 
         #     img_feature = nn.functional.avg_pool2d(image_features, image_features.shape[2:4]).view(x.shape[0], -1) 
         #     img_feature_proj = image_features_proj[0]
@@ -100,7 +100,7 @@ class build_transformer(nn.Module):
             # aer
 
             # # #
-            image_features_last, image_features, image_features_proj = self.image_encoder(x, cv_embed) #B,512  B,128,512
+            image_features_last, image_features, image_features_proj = self.ve(x, cv_embed) #B,512  B,128,512
             img_feature_last = image_features_last[:,0]
             img_feature = image_features[:,0]
             img_feature_proj = image_features_proj[:,0]
