@@ -2,6 +2,7 @@ from timm.layers import  trunc_normal_
 import torch
 import torch.nn as nn
 from .clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
+from .clip.clip import tokenize as tokenizer
 from .clip import clip
 
 _tokenizer = _Tokenizer()
