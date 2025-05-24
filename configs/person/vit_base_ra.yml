@@ -19,8 +19,8 @@ MODEL:
   LAST_OR_NEW_CKPT_EPOCH_MARK: 0
 
 INPUT:
-  SIZE_TRAIN: [224, 224]
-  SIZE_TEST: [224, 224]
+  SIZE_TRAIN: [256, 256]
+  SIZE_TEST: [256, 256]
   seq_len: 6
   sample_stride: 3
 

@@ -2,28 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-def normalize(x: torch.Tensor, axis: int = -1, eps: float = 1e-12) -> torch.Tensor:
-    """Normalize to unit length along the specified dimension using F.normalize."""
-    return F.normalize(x, p=2, dim=axis, eps=eps)
-
-
-def euclidean_dist(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-    """Batch-wise Euclidean distance matrix using torch.cdist."""
-    return torch.cdist(x, y, p=2)
-
-
-def cosine_dist(x: torch.Tensor, y: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
-    """Cosine distance matrix: (1 - cosine_similarity) / 2."""
-    # [m, d] -> [m, 1, d], [n, d] -> [1, n, d]
-    x_norm = F.normalize(x, p=2, dim=-1, eps=eps)
-    y_norm = F.normalize(y, p=2, dim=-1, eps=eps)
-    # cosine similarity with broadcasting
-    sim = torch.matmul(x_norm, y_norm.t())  # [m, n]
-    return (1.0 - sim) * 0.5
-
-
-def hard_example_mining(dist_mat: torch.Tensor, labels: torch.LongTensor, return_inds: bool = False):
+def hard_example_mining(dist_mat: torch.Tensor, 
+                        labels: torch.LongTensor, 
+                        return_inds: bool = False):
     """For each anchor, find the hardest positive and negative sample."""
     N = dist_mat.size(0)
     # mask for positives and negatives
@@ -78,3 +59,11 @@ class TripletLoss(nn.Module):
         else:
             loss = self.ranking_loss(dist_an - dist_ap, target)
         return loss, dist_ap, dist_an
+
+# test case
+if __name__ == "__main__":
+    features = torch.randn(10, 128)  # 10 samples, 128-dimensional features
+    labels = torch.randint(0, 5, (10,))  # 5 classes
+    triplet_loss = TripletLoss(margin=0.2, hard_factor=0.1)
+    loss, dist_ap, dist_an = triplet_loss(features, labels)
+    print(f"Loss: {loss.item()}, Dist_ap: {dist_ap.mean().item()}, Dist_an: {dist_an.mean().item()}")

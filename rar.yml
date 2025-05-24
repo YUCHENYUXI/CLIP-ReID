@@ -1,0 +1,71 @@
+name: rar # 建议使用一个新名称，以免与旧环境混淆
+channels:
+  - pytorch
+  - nvidia # 强烈建议添加此通道以获取最新的 PyTorch 和 CUDA 包
+  - conda-forge
+  - defaults
+  
+  # - https://repo.anaconda.com/pkgs/main # 通常包含在 defaults 中
+  # - https://repo.anaconda.com/pkgs/r # 除非您需要 R 语言支持
+
+dependencies:
+  # 核心 Python 和 PyTorch 堆栈
+  - python=3.10             # 推荐升级到 3.10 或 3.11
+  - pytorch=2.3.1           # 当前 PyTorch 的最新稳定版本（截至 2025 年 5 月）
+  - pytorch-cuda=12.1       # 对应 PyTorch 2.3.1 的 CUDA 版本。请根据您的 GPU 兼容性选择。
+                            # 例如，如果您有较新的 NVIDIA GPU，可以选择 12.1 或 12.4。
+                            # PyTorch 官网会给出推荐版本。
+  - torchvision=0.18.1      # 与 PyTorch 2.3.1 兼容的 torchvision
+  - torchaudio=2.3.1        # 与 PyTorch 2.3.1 兼容的 torchaudio
+
+  # 其他核心科学计算和工具包（让 Conda 寻找最新兼容版本）
+  - numpy
+  - scipy
+  - scikit-image
+  - pillow                  # Conda 版本，如果 pip 版本更优，后面会覆盖
+  - imageio
+  - networkx
+  - dask-core
+  - cloudpickle
+  - fsspec
+  - tqdm
+  - filelock
+  - click
+  - packaging
+  - pyyaml
+  - regex
+  - ftfy
+  - yacs
+  - accimage                # 保持原有的特定包
+  - ffmpeg
+  - cytoolz
+  - toolz
+  - pytest
+  - pluggy
+  - iniconfig
+  - tomli
+  - zipp
+  - importlib-metadata
+  - exceptiongroup
+  - typing_extensions
+  - setuptools
+  - wheel
+  - ninja
+  - mkl                     # Intel Math Kernel Library
+  - mkl-service
+  - libuv
+  - cudatoolkit             # Conda 会根据 pytorch-cuda=12.1 来安装对应的版本
+
+  # 由 pip 安装的包
+  - pip:
+      # 以下包将通过 pip 安装，通常不需要指定版本，让 pip 自动更新
+      # 如果遇到问题，再尝试指定版本
+      - certifi
+      - charset-normalizer
+      - hf-xet
+      - huggingface-hub
+      - pillow-simd # 优先于 Conda 的 pillow，如果您的系统支持 SIMD 优化
+      - requests
+      - safetensors
+      - timm
+      - urllib3

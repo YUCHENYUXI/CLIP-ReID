@@ -7,55 +7,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
-        },
-        {
-            "name": "R_CNN",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/train_vid.py",
-            "args": [
-                "--config_file",
-                "configs/person/cnn_base_rgb.yml"
-            ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
-            },
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "justMyCode": false
-        },
-        {
-            "name": "R_VIT",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/train_vid.py",
-            "args": [
-                "--config_file",
-                "configs/person/vit_base_rgb.yml"
-            ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
-            },
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "justMyCode": false
-        },
-        {
-            "name": "E_VIT",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/train_vid.py",
-            "args": [
-                "--config_file",
-                "configs/person/vit_base_e.yml"
-            ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
-            },
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "justMyCode": false
-        },        
+        },  
         {
             "name": "RA_VIT",
             "type": "debugpy",

@@ -43,18 +43,7 @@ if __name__ == '__main__':
     print('*'*30,"PID = %d, GPU ID = %d" % (os.getpid(), torch.cuda.current_device()),'*'*30)
     cfg ,args,logger= init_all()
     # set_global_seed(cfg.SOLVER.SEED) # debug 不用，更快
-
-    # # train_loader, val_loader, num_query, num_classes, camera_num, view_num = make_dataloader(cfg)
-    # dataloaders = make_dataloader(cfg)
-    
-    # #
-    import pickle
-    import os
-
-    if os.path.exists('dataloaders.pkl'):
-        with open('dataloaders.pkl', 'rb') as f:
-            dataloaders = pickle.load(f)
-    # # model enter
+    dataloaders = make_dataloader(cfg)
     model = make_model(cfg, num_class=dataloaders['cls_num'], camera_num=dataloaders['cam_num'], view_num = dataloaders['view_num'])
     loss_func, center_criterion = make_loss(cfg, num_classes=dataloaders['cls_num'])
     optimizer, optimizer_center = make_optimizer(cfg, model, center_criterion)

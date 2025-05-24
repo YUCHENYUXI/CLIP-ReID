@@ -97,7 +97,7 @@ class build_transformer(nn.Module):
             trunc_normal_(self.cv_embed, std=.02)
             print('camera number is : {}'.format(view_num))
 
-    def forward(self,dpac ):
+    def forward(self,dpac):
         # x, label=None, cam_label= None, view_label=None
         # dpac {'aer': aer,'rgb': rgb,'pid': pid,'cid': camid}
 
