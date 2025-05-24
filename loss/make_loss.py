@@ -11,9 +11,13 @@ from .center_loss import CenterLoss
 
 
 def make_loss(cfg, num_classes):    # modified by gu
+    print("make------------------------------loss")
     sampler = cfg.DATALOADER.SAMPLER
     feat_dim = 2048
+    # center loss
+    print("use center loss")
     center_criterion = CenterLoss(num_classes=num_classes, feat_dim=feat_dim, use_gpu=True)  # center loss
+    # tri loss with HARD&MARGIN
     if 'triplet' in cfg.MODEL.METRIC_LOSS_TYPE:
         if cfg.MODEL.NO_MARGIN:
             triplet = TripletLoss()
@@ -24,10 +28,10 @@ def make_loss(cfg, num_classes):    # modified by gu
     else:
         print('expected METRIC_LOSS_TYPE should be triplet'
               'but got {}'.format(cfg.MODEL.METRIC_LOSS_TYPE))
-
+    # 
     if cfg.MODEL.IF_LABELSMOOTH == 'on':
         xent = CrossEntropyLabelSmooth(num_classes=num_classes)
-        print("label smooth on, numclasses:", num_classes)
+        print("use CrossEntropyLabelSmooth:label smooth on, numclasses:", num_classes)
 
     if sampler == 'softmax':
         def loss_func(score, feat, target):
@@ -37,13 +41,13 @@ def make_loss(cfg, num_classes):    # modified by gu
         def loss_func(score, feat, target, target_cam, i2tscore = None):
             if cfg.MODEL.METRIC_LOSS_TYPE == 'triplet':
                 if cfg.MODEL.IF_LABELSMOOTH == 'on':
-                    if isinstance(score, list):
+                    if isinstance(score, list): # fc id
                         ID_LOSS = [xent(scor, target) for scor in score[0:]]
                         ID_LOSS = sum(ID_LOSS)
                     else:
                         ID_LOSS = xent(score, target)
 
-                    if isinstance(feat, list):
+                    if isinstance(feat, list):# tf tri
                         TRI_LOSS = [triplet(feats, target)[0] for feats in feat[0:]]
                         TRI_LOSS = sum(TRI_LOSS) 
                     else:   
@@ -55,7 +59,7 @@ def make_loss(cfg, num_classes):    # modified by gu
                         I2TLOSS = xent(i2tscore, target)
                         loss = cfg.MODEL.I2T_LOSS_WEIGHT * I2TLOSS + loss
                         
-                    return [loss,ID_LOSS if isinstance(score, list) else -1, TRI_LOSS if isinstance(feat, list) else -1]
+                    return [loss,ID_LOSS, TRI_LOSS]
                 else:
                     if isinstance(score, list):
                         ID_LOSS = [F.cross_entropy(scor, target) for scor in score[0:]]
@@ -71,19 +75,16 @@ def make_loss(cfg, num_classes):    # modified by gu
 
                     loss = cfg.MODEL.ID_LOSS_WEIGHT * ID_LOSS + cfg.MODEL.TRIPLET_LOSS_WEIGHT * TRI_LOSS
                     
-                    if i2tscore  is not  None:
+                    if i2tscore is not  None:
                         I2TLOSS = F.cross_entropy(i2tscore, target)
                         loss = cfg.MODEL.I2T_LOSS_WEIGHT * I2TLOSS + loss
 
-
-                    return loss
+                    return [loss,ID_LOSS, TRI_LOSS]
             else:
-                print('expected METRIC_LOSS_TYPE should be triplet'
-                      'but got {}'.format(cfg.MODEL.METRIC_LOSS_TYPE))
+                print('expected METRIC_LOSS_TYPE should be triplet but got {}'.format(cfg.MODEL.METRIC_LOSS_TYPE))
 
     else:
-        print('expected sampler should be softmax, triplet, softmax_triplet or softmax_triplet_center'
-              'but got {}'.format(cfg.DATALOADER.SAMPLER))
+        print('expected sampler should be softmax, triplet, softmax_triplet or softmax_triplet_center but got {}'.format(cfg.DATALOADER.SAMPLER))
     return loss_func, center_criterion
 
 
