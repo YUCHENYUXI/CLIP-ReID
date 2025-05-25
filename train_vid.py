@@ -45,9 +45,10 @@ if __name__ == '__main__':
     # set_global_seed(cfg.SOLVER.SEED) # debug 不用，更快
     dataloaders = make_dataloader(cfg)
     model = make_model(cfg, num_class=dataloaders['cls_num'], camera_num=dataloaders['cam_num'], view_num = dataloaders['view_num'])
-    loss_func, center_criterion = make_loss(cfg, num_classes=dataloaders['cls_num'])
-    optimizer, optimizer_center, log = make_optimizer(cfg, model, center_criterion)
-    logger.info("Optimizer:{}".format(log))
+    loss_func, center_criterion,log_l = make_loss(cfg, num_classes=dataloaders['cls_num'])
+    optimizer, optimizer_center, log_o = make_optimizer(cfg, model, center_criterion)
+    logger.info("Loss:{}".format(log_l))
+    logger.info("Optimizer:{}".format(log_o))
     scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
 
     do_train(

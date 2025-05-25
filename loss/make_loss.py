@@ -11,27 +11,32 @@ from .center_loss import CenterLoss
 
 
 def make_loss(cfg, num_classes):    # modified by gu
-    print("make------------------------------loss")
+    NL='\n'
+    logtxt = ""
+    def lbuf(a:str):
+        nonlocal logtxt
+        logtxt+=a+NL
+    lbuf("make------------------------------loss")
     sampler = cfg.DATALOADER.SAMPLER
     feat_dim = 2048
     # center loss
-    print("use center loss")
+    lbuf("use center loss")
     center_criterion = CenterLoss(num_classes=num_classes, feat_dim=feat_dim, use_gpu=True)  # center loss
     # tri loss with HARD&MARGIN
     if 'triplet' in cfg.MODEL.METRIC_LOSS_TYPE:
         if cfg.MODEL.NO_MARGIN:
             triplet = TripletLoss()
-            print("using soft triplet loss for training")
+            lbuf("using soft triplet loss for training")
         else:
             triplet = TripletLoss(cfg.SOLVER.MARGIN)  # triplet loss
-            print("using triplet loss with margin:{}".format(cfg.SOLVER.MARGIN))
+            lbuf("using triplet loss with margin:{}".format(cfg.SOLVER.MARGIN))
     else:
-        print('expected METRIC_LOSS_TYPE should be triplet'
+        lbuf('expected METRIC_LOSS_TYPE should be triplet'
               'but got {}'.format(cfg.MODEL.METRIC_LOSS_TYPE))
     # 
     if cfg.MODEL.IF_LABELSMOOTH == 'on':
         xent = CrossEntropyLabelSmooth(num_classes=num_classes)
-        print("use CrossEntropyLabelSmooth:label smooth on, numclasses:", num_classes)
+        lbuf("use CrossEntropyLabelSmooth:label smooth on, numclasses:"+str(num_classes))
 
     if sampler == 'softmax':
         def loss_func(score, feat, target):
@@ -81,10 +86,10 @@ def make_loss(cfg, num_classes):    # modified by gu
 
                     return [loss,ID_LOSS, TRI_LOSS]
             else:
-                print('expected METRIC_LOSS_TYPE should be triplet but got {}'.format(cfg.MODEL.METRIC_LOSS_TYPE))
+                lbuf('expected METRIC_LOSS_TYPE should be triplet but got {}'.format(cfg.MODEL.METRIC_LOSS_TYPE))
 
     else:
-        print('expected sampler should be softmax, triplet, softmax_triplet or softmax_triplet_center but got {}'.format(cfg.DATALOADER.SAMPLER))
-    return loss_func, center_criterion
+        lbuf('expected sampler should be softmax, triplet, softmax_triplet or softmax_triplet_center but got {}'.format(cfg.DATALOADER.SAMPLER))
+    return loss_func, center_criterion,logtxt
 
 

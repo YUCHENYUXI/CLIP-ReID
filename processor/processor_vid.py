@@ -147,7 +147,7 @@ def do_train(cfg,
         #             logger.info(f"CMC curve, Rank-{r:<3}: {cmc[r-1]:.1%}")
         #     except Exception as e:
         #         logger.exception(f"Evaluation failed at epoch {epoch}: {e}")
-        #     torch.cuda.empty_cache()
+            # torch.cuda.empty_cache()
         
         
         if test_mode:

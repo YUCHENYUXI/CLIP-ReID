@@ -1,15 +1,18 @@
 import torch
-NL='\n'
-
-
 
 def make_optimizer(cfg, model, center_criterion):
+    NL='\n'
     logtxt = ""
-    logtxt += "create-opt----------------------------------------------------mizer"+NL
+    def lbuf(a:str):
+        nonlocal logtxt
+        logtxt += a+NL
+
+    lbuf("create-opt----------------------------------------------------mizer")
     # --- freeze ---
+    lbuf("[[freezing parameters:")
     for name, param in model.named_parameters():
         if param.requires_grad is False:
-            logtxt+=(f"ign: {name}"+NL)
+            lbuf(f"ign: {name}")
             continue
         if "clip.visual." in name or "clip.transformer." in name:
             # 排除 text_projection, logit_scale, positional_embedding, token_embedding
@@ -21,7 +24,7 @@ def make_optimizer(cfg, model, center_criterion):
                 param.requires_grad = True # 确保这些参数是可训练的
             else:
                 param.requires_grad = False # 冻结图像和文本Transformer的主干层
-                logtxt+=(f"fre: {name}"+NL)
+                lbuf(f"fre: {name}")
 
         else:
             param.requires_grad = True # 其他层（如classifier, bottleneck）默认可训练
@@ -29,8 +32,10 @@ def make_optimizer(cfg, model, center_criterion):
 
 
     params = []
+    lbuf("[[optimizer parameters:")
     for key, value in model.named_parameters():
         if value.requires_grad is False:
+            # lbuf(f"ign: {key}")
             continue
         
         lr = cfg.SOLVER.BASE_LR
@@ -41,10 +46,10 @@ def make_optimizer(cfg, model, center_criterion):
         if cfg.SOLVER.LARGE_FC_LR: # fc - lr * cfg.SOLVER.BIAS_LR_FACTOR
             if "classifier" in key or "arcface" in key:
                 lr = cfg.SOLVER.BASE_LR * 2
-                print('Using two times learning rate for fc ')
+                lbuf('Using two times learning rate for fc ')
 
         params += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
-        logtxt+=(f"opt: {key}"+NL)
+        lbuf(f"opt: {key}")
 
     if cfg.SOLVER.OPTIMIZER_NAME == 'SGD':
         optimizer = getattr(torch.optim, cfg.SOLVER.OPTIMIZER_NAME)(params, momentum=cfg.SOLVER.MOMENTUM)
