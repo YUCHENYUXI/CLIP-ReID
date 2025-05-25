@@ -46,7 +46,8 @@ if __name__ == '__main__':
     dataloaders = make_dataloader(cfg)
     model = make_model(cfg, num_class=dataloaders['cls_num'], camera_num=dataloaders['cam_num'], view_num = dataloaders['view_num'])
     loss_func, center_criterion = make_loss(cfg, num_classes=dataloaders['cls_num'])
-    optimizer, optimizer_center = make_optimizer(cfg, model, center_criterion)
+    optimizer, optimizer_center, log = make_optimizer(cfg, model, center_criterion)
+    logger.info("Optimizer:{}".format(log))
     scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
 
     do_train(

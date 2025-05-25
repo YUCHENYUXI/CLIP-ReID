@@ -65,8 +65,8 @@ class build_transformer(nn.Module):
         clip_model = load_clip_to_cpu(self.model_name, self.h_resolution, self.w_resolution, self.vision_stride_size)
         clip_model.to("cuda")
         self.clip = clip_model
-        self.ve = clip_model.visual
-        self.te = clip_model.transformer
+        # self.ve = clip_model.visual
+        # self.te = clip_model.transformer
 # #
         # clip_model.transformer = Transformer(
         #     width=transformer_width,
@@ -146,7 +146,7 @@ class build_transformer(nn.Module):
             img_feature_last = image_features_last[:,0]
             img_feature = image_features[:,0]
             img_feature_proj = image_features_proj[:,0]
-
+        # feat -> bottleneck -> classifier
         feat = self.bottleneck(img_feature)
         feat_proj = self.bottleneck_proj(img_feature_proj)
 
