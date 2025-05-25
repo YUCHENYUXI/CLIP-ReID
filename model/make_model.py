@@ -62,7 +62,8 @@ class build_transformer(nn.Module):
         self.h_resolution = int((cfg.INPUT.SIZE_TRAIN[0]-16)//cfg.MODEL.STRIDE_SIZE[0] + 1)
         self.w_resolution = int((cfg.INPUT.SIZE_TRAIN[1]-16)//cfg.MODEL.STRIDE_SIZE[1] + 1)
         self.vision_stride_size = cfg.MODEL.STRIDE_SIZE[0]
-        clip_model = load_clip_to_cpu(self.model_name, self.h_resolution, self.w_resolution, self.vision_stride_size)
+        clip_model = load_clip_to_cpu(self.model_name, 
+                                      self.h_resolution, self.w_resolution, self.vision_stride_size)
         clip_model.to("cuda")
         self.clip = clip_model
         # self.ve = clip_model.visual
