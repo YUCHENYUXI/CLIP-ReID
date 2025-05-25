@@ -17,12 +17,13 @@ def do_train(cfg,
              optimizer_center,
              scheduler,
              loss_fn,
-             num_query, local_rank):
+             num_query, 
+             local_rank):
     device = "cuda"
-
+    ##
     logger = logging.getLogger("RAR.train")
     logger.info('Start training')
-    
+    ##
     model.to(local_rank)
     if torch.cuda.device_count() > 1:
         print('Using {} GPUs for training'.format(torch.cuda.device_count()))
@@ -60,6 +61,9 @@ def do_train(cfg,
         # 批次
         if cfg.MODEL.TRAIN_MODE:
             for n_iter, dpac in enumerate(train_loader):
+                print("\n--- 数据加载后显存使用情况 ---")
+                print(torch.cuda.memory_summary(device=device, abbreviated=False))
+                print("-" * 50)
                 # dpac {'aer': aer,'rgb': rgb,'pid': pid,'cid': camid}
                 optimizer.zero_grad()
                 optimizer_center.zero_grad()
@@ -95,11 +99,23 @@ def do_train(cfg,
                 acc_meter.update(acc.item(), 1)
                 IDloss_meter.update(idloss, 1)
                 TRILoss_meter.update(triloss, 1)
-
+                print("\n--- 训练一步后显存使用情况 ---")
+                print(torch.cuda.memory_summary(device=device, abbreviated=False))
+                print("-" * 50)
                 if (n_iter + 1) % cfg.SOLVER.LOG_PERIOD == 0:
                     logger.info(f"Epoch[{epoch}] Iter[{n_iter+1}/{len(train_loader)}] "
                                 f"AVGLoss: {loss_meter.avg:.3f}, AVGID: {IDloss_meter.avg:.3f}, AVGTri: {TRILoss_meter.avg:.3f}, "
                                 f"AVGAcc: {acc_meter.avg:.3f}, LR: {scheduler.get_lr()[0]:.2e}")
+                del dpac, loss, idloss, triloss, score, feat
+                torch.cuda.empty_cache() # 清空 PyTorch 的缓存分配器中未使用的内存
+                print("\n--- 清理后显存使用情况 ---")
+                print(torch.cuda.memory_summary(device=device, abbreviated=False))
+                print("-" * 50)
+                # 5. 打印一些基本显存统计信息
+                print(f"\n当前分配显存: {torch.cuda.memory_allocated(device) / (1024**3):.2f} GB")
+                print(f"当前保留显存: {torch.cuda.memory_reserved(device) / (1024**3):.2f} GB")
+                print(f"峰值分配显存: {torch.cuda.max_memory_allocated(device) / (1024**3):.2f} GB")
+                print(f"峰值保留显存: {torch.cuda.max_memory_reserved(device) / (1024**3):.2f} GB")
 
         scheduler.step()
 

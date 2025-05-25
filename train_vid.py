@@ -51,6 +51,9 @@ if __name__ == '__main__':
     logger.info("Optimizer:{}".format(log_o))
     scheduler = WarmupMultiStepLR(optimizer, cfg.SOLVER.STEPS, cfg.SOLVER.GAMMA, cfg.SOLVER.WARMUP_FACTOR,cfg.SOLVER.WARMUP_ITERS, cfg.SOLVER.WARMUP_METHOD)
 
+    print("--- 模型加载后显存使用情况 ---")
+    print(torch.cuda.memory_summary(device="cuda:0", abbreviated=False))
+    print("-" * 50)
     do_train(
         cfg,
         model,
