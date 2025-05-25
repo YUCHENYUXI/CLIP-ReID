@@ -49,7 +49,7 @@ def make_loss(cfg, num_classes):    # modified by gu
 
                     if isinstance(feat, list):# tf tri
                         TRI_LOSS = [triplet(feats, target)[0] for feats in feat[0:]]
-                        TRI_LOSS = sum(TRI_LOSS) 
+                        TRI_LOSS = sum(TRI_LOSS)
                     else:   
                         TRI_LOSS = triplet(feat, target)[0]
                     

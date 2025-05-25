@@ -19,9 +19,10 @@ def make_dataloader(cfg):
     # train
     spatial_transform_train =ST.Compose([ # 训练集-空间
         ST.Scale(cfg.INPUT.SIZE_TRAIN, interpolation=3),
+        ST.RandomCrop(cfg.INPUT.SIZE_TRAIN),
         ST.RandomHorizontalFlip(),
         ST.ToTensor(),
-        # ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     temporal_transform_train =TT.TemporalCenterStrideCrop( # 训练集-时间
         size=cfg.INPUT.seq_len,
@@ -31,7 +32,7 @@ def make_dataloader(cfg):
     spatial_transform_test = ST.Compose([
         ST.Scale(cfg.INPUT.SIZE_TEST, interpolation=3),
         ST.ToTensor(),
-        # ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ST.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     temporal_transform_test = TT.TemporalCenterStrideCrop(
         size=cfg.INPUT.seq_len,

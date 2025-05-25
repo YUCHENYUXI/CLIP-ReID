@@ -51,6 +51,8 @@ _C.MODEL.LAST_OR_NEW_CKPT_EPOCH_MARK = 0
 
 # INPUT-----------------------------------------------------------------------------
 _C.INPUT = CN()
+# Size of the image during st scaling
+_C.INPUT.SIZE_SCALE = [-1, -1]
 # Size of the image during training
 _C.INPUT.SIZE_TRAIN = [-1, -1]
 # Size of the image during test
